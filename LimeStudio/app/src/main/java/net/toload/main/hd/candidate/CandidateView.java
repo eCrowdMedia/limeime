@@ -41,6 +41,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -70,7 +71,7 @@ import java.util.List;
 
 public class CandidateView extends View implements View.OnClickListener {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final String TAG = "CandidateView";
 
     protected static final int OUT_OF_BOUNDS = -1;
@@ -263,7 +264,10 @@ public class CandidateView extends View implements View.OnClickListener {
         Point screenSize = new Point();
         display.getSize(screenSize);
         mScreenWidth = screenSize.x;
-        mScreenHeight = screenSize.y;
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getRealMetrics(displayMetrics);
+        mScreenHeight = displayMetrics.heightPixels;
 
         mVerticalPadding = (int) (r.getDimensionPixelSize(R.dimen.candidate_vertical_padding) * mLIMEPref.getFontSize());
         mVerticalExtrasPadding = r.getDimensionPixelSize(R.dimen.candidate_vertical_extras_padding);
