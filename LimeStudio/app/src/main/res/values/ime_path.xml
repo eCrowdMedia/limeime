@@ -22,7 +22,7 @@
         <item>0</item>    <!-- phonetic/注音 -->
         <item>0</item>    <!-- cj/倉頡 -->
         <item>0</item>    <!-- ecj/速成 -->
-        <item>2</item>    <!-- pinyin/拼音繁體 -->
+        <item>3</item>    <!-- pinyin/拼音繁體 -->
         <item>0</item>    <!-- imtable2/拼音簡體 -->
     </integer-array>
 </resources>
