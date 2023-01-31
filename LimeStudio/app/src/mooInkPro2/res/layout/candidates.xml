@@ -75,5 +75,11 @@
 				/>
 		</LinearLayout>
     </LinearLayout>
+	<View
+		android:id="@+id/dummy_view"
+		android:layout_width="match_parent"
+		android:layout_height="626dp"
+		android:background="@drawable/bg_top_line"
+		android:visibility="visible"/>
 
 </net.toload.main.hd.candidate.CandidateViewContainer>
