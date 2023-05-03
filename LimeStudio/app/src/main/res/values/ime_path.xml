@@ -19,7 +19,7 @@
 
     <!-- 若需要更新字根檔, version 需大於目前版本 -->
     <integer-array name="ime_file_ver">
-        <item>1</item>    <!-- phonetic/注音 -->
+        <item>2</item>    <!-- phonetic/注音 -->
         <item>0</item>    <!-- cj/倉頡 -->
         <item>0</item>    <!-- ecj/速成 -->
         <item>3</item>    <!-- pinyin/拼音繁體 -->
