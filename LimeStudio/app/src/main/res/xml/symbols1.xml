@@ -58,7 +58,7 @@
     </Row>
     
     <Row>
-        <Key limehd:codes="-15" limehd:keyLabel="1/3"
+        <Key limehd:codes="-15" limehd:keyLabel="1/3 ▸"
                 limehd:keyWidth="15%p" limehd:isModifier="true"
                 limehd:keyEdgeFlags="left"/>
         <Key limehd:codes="33" limehd:keyLabel="!" />
