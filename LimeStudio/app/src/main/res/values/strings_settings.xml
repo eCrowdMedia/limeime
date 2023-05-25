@@ -75,7 +75,7 @@
     <string name="Similiar">關聯字</string>
     <string name="mapping">對應表</string>
 
-    <string name="keyboard_list">LIME 輸入法切換</string>
+    <string name="keyboard_list">輸入法切換</string>
 
     <string name="enable_emoji">開啟 EMOJI 顯示</string>
     <string name="enable_emoji_summary">依字根或中文組字顯示圖示, 由於字型支援的差異所以部份圖示可能無法正確顯示</string>
@@ -129,7 +129,7 @@
     <string name="han_convert_st">簡轉繁</string>
     <string name="han_convert_notify">中文簡/繁體轉換提示</string>
     <string name="han_convert_notify_summary">輸入間隔時間超過60s時提示轉換的設定</string>
-    <string name="han_convert_option_list">中文簡/繁體字碼轉換</string>
+    <string name="han_convert_option_list">中文簡繁轉換</string>
     <string name="selkey_option_list">設定選字鍵預選順序</string>
 
 

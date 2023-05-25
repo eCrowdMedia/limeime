@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rb_default"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:drawableStart="@drawable/btn_radio_selector"
+    android:drawableLeft="@drawable/btn_radio_selector"
+    android:gravity="center_vertical"
+    android:textColor="@android:color/black"
+    android:text="@string/han_convert_ts"
+    android:textSize="36sp" />

@@ -27,7 +27,6 @@ package net.toload.main.hd;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Service;
-import android.arch.core.BuildConfig;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,6 +35,7 @@ import android.inputmethodservice.InputMethodService;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -54,6 +54,11 @@ import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.toload.main.hd.candidate.CandidateInInputViewContainer;
@@ -1710,10 +1715,10 @@ public class LIMEService extends InputMethodService implements
         } else if (primaryCode == LIMEBaseKeyboard.KEYCODE_LEFT) {
             keyDownUp(KeyEvent.KEYCODE_DPAD_LEFT, hasCandidatesShown);
         } else if (primaryCode == LIMEKeyboardView.KEYCODE_OPTIONS) {
-//            handleOptions();
             showIMPicker();
         } else if (primaryCode == LIMEKeyboardView.KEYCODE_SPACE_LONGPRESS) {
-            showIMPicker();
+//            handleOptions();
+            handleReadmooOption();
         } else if (primaryCode == KEYCODE_SWITCH_TO_SYMBOL_MODE && mInputView != null) { //->symbol keyboard
             switchKeyboard(primaryCode);
         } else if (primaryCode == KEYCODE_SWITCH_SYMBOL_KEYBOARD && mInputView != null) { //->switch symbols1 keyboards
@@ -2021,16 +2026,15 @@ public class LIMEService extends InputMethodService implements
      * Add by Jeremy '11,9,17 for han convert (tranditional <-> simplifed) options
      */
     private void showHanConvertPicker() {
-        AlertDialog.Builder builder;
-
-        builder = new AlertDialog.Builder(this);
-
-        builder.setCancelable(true);
-        builder.setIcon(R.drawable.sym_keyboard_done_light);
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setTitle(getResources().getString(R.string.han_convert_option_list));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
+        TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
+        titleView.setText(getResources().getString(R.string.han_convert_option_list));
+        builder.setCustomTitle(titleView);
         CharSequence[] items = getResources().getStringArray(R.array.han_convert_options);
-        builder.setSingleChoiceItems(items, mLIMEPref.getHanCovertOption(),
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
+                this, R.layout.item_check_option, items);
+
+        builder.setSingleChoiceItems(adapter, mLIMEPref.getHanCovertOption(),
                 new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface di, int position) {
@@ -2039,26 +2043,62 @@ public class LIMEService extends InputMethodService implements
                     }
                 });
 
-        mOptionsDialog = builder.create();
-        Window window = mOptionsDialog.getWindow();
-        if (!(window == null)) {
-            WindowManager.LayoutParams lp = window.getAttributes();
-            lp.token = mCandidateViewStandAlone.getWindowToken();  //Jeremy 12,5,4 it's always there 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-            } else {
-                lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
-            }
-            window.setAttributes(lp);
-            window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-
-        }
-        mOptionsDialog.show();
+        createCustomAlertDialog(builder, mCandidateViewStandAlone.getWindowToken());
     }
 
     private void handleHanConvertSelection(int position) {
         mLIMEPref.setHanCovertOption(position);
 
+    }
+
+    private void handleReadmooOption() {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_lime_option, null);
+        builder.setView(view);
+
+        LinearLayout itemSwitchIM = view.findViewById(R.id.option_ime_switch);
+        itemSwitchIM.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOptionsDialog.dismiss();
+                showIMPicker();
+            }
+        });
+
+        LinearLayout hanConvert = view.findViewById(R.id.option_han_converter);
+        hanConvert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOptionsDialog.dismiss();
+                showHanConvertPicker();
+            }
+        });
+
+        ImageView keyboardIcon = view.findViewById(R.id.icon_keyboard);
+        keyboardIcon.setImageResource((mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) ?
+                R.drawable.keyboardmerge : R.drawable.keyboardbreak);
+
+        TextView keyboardText = view.findViewById(R.id.text_keyboard);
+        keyboardText.setText((mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) ?
+                getString(R.string.merge_keyboard) : getString(R.string.split_keyboard));
+
+        LinearLayout itemSplitKeyboard = view.findViewById(R.id.option_keyboard);
+        itemSplitKeyboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOptionsDialog.dismiss();
+                if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_NEVER) {
+                    mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS);
+                } else if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
+                    mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_NEVER);
+                }
+                handleClose();
+                mKeyboardSwitcher.resetKeyboards(true);
+            }
+        });
+
+        createCustomAlertDialog(builder, mInputView.getWindowToken());
     }
 
     /**
@@ -2070,20 +2110,14 @@ public class LIMEService extends InputMethodService implements
             Log.i(TAG, "showIMPicker()");
         buildActivatedIMList();
 
-        AlertDialog.Builder builder;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
+        TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
+        titleView.setText(getResources().getString(R.string.keyboard_list));
 
-        builder = new AlertDialog.Builder(this, R.style.MooDialog/*new ContextThemeWrapper(this, R.style.AppCompatDialog)*/);
-
-        builder.setCancelable(true);
-//        builder.setIcon(R.drawable.sym_keyboard_done_light);
-        builder.setNegativeButton(android.R.string.cancel, null);
-//        builder.setTitle(getResources().getString(R.string.keyboard_list));
-        View titleView = LayoutInflater.from(this).inflate(R.layout.dialog_me_picker_title, null);
         builder.setCustomTitle(titleView);
 
         int expandSize = mSupportEInkHandwriteIme ? 1 : 0;
         CharSequence[] items = new CharSequence[activatedIMNameList.size() + expandSize];
-        // getResources().getStringArray(R.array.keyboard);
         int curKB = 0;
         for (int i = 0; i < activatedIMNameList.size(); i++) {
             items[i] = activatedIMNameList.get(i);
@@ -2096,7 +2130,10 @@ public class LIMEService extends InputMethodService implements
             items[items.length - 1] = "手寫輸入法";
         }
 
-        builder.setSingleChoiceItems(items, curKB,
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
+                this, R.layout.item_check_option, items);
+
+        builder.setSingleChoiceItems(adapter, curKB,
                 new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface di, int position) {
@@ -2104,26 +2141,33 @@ public class LIMEService extends InputMethodService implements
                         handleIMSelection(position);
                     }
                 });
+        // Jeremy '11,8,28 Use candidate instead of mInputview because mInputView may not present when using physical keyboard
+        createCustomAlertDialog(builder, mInputView.getWindowToken());
+    }
 
+    private void createCustomAlertDialog(AlertDialog.Builder builder, IBinder windowToken) {
         mOptionsDialog = builder.create();
+        ListView listView = mOptionsDialog.getListView();
+        if (listView != null) {
+            listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
+            listView.setDividerHeight(1);// 去掉原來的直線分隔線
+        }
         Window window = mOptionsDialog.getWindow();
         // Jeremy '10, 4, 12
         // The IM is not initialialized. do nothing here if window=null.
-        if (!(window == null)) {
-            WindowManager.LayoutParams lp = window.getAttributes();
-            // Jeremy '11,8,28 Use candidate instead of mInputview because mInputView may not present when using physical keyboard
-            lp.token = mInputView.getWindowToken();  //always there Jeremy '12,5,4
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-            } else {
-                lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
-            }
-            window.setAttributes(lp);
-            window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-
+        assert window != null;
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.token = windowToken;  //always there Jeremy '12,5,4
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            builder.setCancelable(true);
+            builder.setNegativeButton(android.R.string.cancel, null);
+        } else {
+            lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
         }
+        window.setAttributes(lp);
+        window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         mOptionsDialog.show();
-
     }
 
     private void handleIMSelection(int position) {
@@ -3511,7 +3555,8 @@ public class LIMEService extends InputMethodService implements
     }
 
     public void swipeUp() {
-        handleOptions();
+        //handleOptions();
+        handleReadmooOption();
     }
 
     /**
