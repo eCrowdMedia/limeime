@@ -2150,7 +2150,7 @@ public class LIMEService extends InputMethodService implements
         ListView listView = mOptionsDialog.getListView();
         if (listView != null) {
             listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
-            listView.setDividerHeight(1);// 去掉原來的直線分隔線
+            listView.setDividerHeight(1);
         }
         Window window = mOptionsDialog.getWindow();
         // Jeremy '10, 4, 12
@@ -2160,13 +2160,12 @@ public class LIMEService extends InputMethodService implements
         lp.token = windowToken;  //always there Jeremy '12,5,4
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-            builder.setCancelable(true);
-            builder.setNegativeButton(android.R.string.cancel, null);
         } else {
             lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
         }
         window.setAttributes(lp);
         window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        mOptionsDialog.setCanceledOnTouchOutside(true);
         mOptionsDialog.show();
     }
 

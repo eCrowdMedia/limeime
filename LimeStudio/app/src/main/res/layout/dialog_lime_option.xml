@@ -22,15 +22,16 @@
 
         <TextView
             android:id="@+id/text_ime_switch"
-            style="@style/Button3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="@dimen/option_dialog_item_margin"
             android:layout_weight="1"
             android:ellipsize="end"
             android:includeFontPadding="false"
-            android:text="@string/keyboard_list" />
+            android:text="@string/keyboard_list"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/option_dialog_text_size" />
 
         <ImageView
             android:layout_width="@dimen/icon_size"
@@ -57,15 +58,16 @@
 
         <TextView
             android:id="@+id/text_han_converter"
-            style="@style/Button3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="@dimen/option_dialog_item_margin"
             android:layout_weight="1"
             android:ellipsize="end"
             android:includeFontPadding="false"
-            android:text="@string/han_convert_option_list" />
+            android:text="@string/han_convert_option_list"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/option_dialog_text_size" />
 
         <ImageView
             android:layout_width="@dimen/icon_size"
@@ -92,15 +94,16 @@
 
         <TextView
             android:id="@+id/text_keyboard"
-            style="@style/Button3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="@dimen/option_dialog_item_margin"
             android:layout_weight="1"
             android:ellipsize="end"
             android:includeFontPadding="false"
-            android:text="@string/merge_keyboard" />
+            android:text="@string/merge_keyboard"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/option_dialog_text_size" />
     </LinearLayout>
 
 </RelativeLayout>

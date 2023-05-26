@@ -34,7 +34,7 @@
     <Row>
         <Key limehd:codes="49" limehd:keyLabel="1" limehd:keyEdgeFlags="left"/>
         <Key limehd:codes="50" limehd:keyLabel="2"/>
-        <Key limehd:codes="51" limehd:keyLabel="3"/>
+        <Key limehd:codes="51" limehd:keyLabel="3"/>FF
         <Key limehd:codes="52" limehd:keyLabel="4"/>
         <Key limehd:codes="53" limehd:keyLabel="5"/>
         <Key limehd:codes="54" limehd:keyLabel="6"/>

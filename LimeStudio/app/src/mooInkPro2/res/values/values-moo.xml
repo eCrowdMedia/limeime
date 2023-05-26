@@ -2,7 +2,11 @@
 <resources>
     <dimen name="dialog_width">852dp</dimen>
     <dimen name="dialog_padding">40dp</dimen>
-
+    <dimen name="option_dialog_title_size">48sp</dimen>
+    <dimen name="option_dialog_text_size">44sp</dimen>
+    <dimen name="option_dialog_item_margin">32dp</dimen>
+    <dimen name="option_dialog_item_height">120dp</dimen>
+    <dimen name="option_dialog_divider_height">2dp</dimen>
     <style name="Body1">
         <item name="android:textSize">42sp</item>
         <item name="android:textColor">@android:color/black</item>

@@ -6,6 +6,6 @@
     android:drawableStart="@drawable/btn_radio_selector"
     android:drawableLeft="@drawable/btn_radio_selector"
     android:gravity="center_vertical"
-    android:textColor="@android:color/black"
     android:text="@string/han_convert_ts"
-    android:textSize="36sp" />
+    android:textColor="@android:color/black"
+    android:textSize="@dimen/option_dialog_text_size" />

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="116dp"
-    android:padding="20dp"
-    android:gravity="center"
-    android:text="@string/han_convert_option_list"
+    android:layout_height="@dimen/option_dialog_item_height"
     android:background="@drawable/bg_bottom_straight_line"
-    android:textAppearance="@style/H2" />
+    android:gravity="center"
+    android:padding="20dp"
+    android:text="@string/han_convert_option_list"
+    android:textColor="@android:color/black"
+    android:textSize="@dimen/option_dialog_title_size"
+    android:textStyle="bold" />
