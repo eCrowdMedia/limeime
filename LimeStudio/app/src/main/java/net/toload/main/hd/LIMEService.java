@@ -3145,39 +3145,24 @@ public class LIMEService extends InputMethodService implements
                 break;
             case "ez":
             case "dayi":
-                mKeyboardSwitcher.setKeyboardMode(activeIM,
-                        LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
-                hasNumberMapping = true;
-                hasSymbolMapping = true;
-                break;
-            case "array10":
-                hasNumberMapping = true;
-                hasSymbolMapping = false;
-                mKeyboardSwitcher.setKeyboardMode(activeIM,
-                        LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
-                break;
             case "array":
-                hasNumberMapping = true; //Jeremy '12,4,28 array 30 actually use number combination keys to enter symbols1
-
-                hasSymbolMapping = true;
-                mKeyboardSwitcher.setKeyboardMode(activeIM,
-                        LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
-                break;
-            case "wb":
-                hasNumberMapping = false;
-                hasSymbolMapping = true;
-                mKeyboardSwitcher.setKeyboardMode(activeIM,
-                        LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
-                break;
             case "hs":
                 hasNumberMapping = true;
                 hasSymbolMapping = true;
                 mKeyboardSwitcher.setKeyboardMode(activeIM,
                         LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
                 break;
+            case "array10":
             case "pinyin":
                 hasNumberMapping = true;
                 hasSymbolMapping = false;
+                mKeyboardSwitcher.setKeyboardMode(activeIM,
+                        LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
+                break;
+            //Jeremy '12,4,28 array 30 actually use number combination keys to enter symbols1
+            case "wb":
+                hasNumberMapping = false;
+                hasSymbolMapping = true;
                 mKeyboardSwitcher.setKeyboardMode(activeIM,
                         LIMEKeyboardSwitcher.MODE_TEXT, mImeOptions, true, false, false);
                 break;
