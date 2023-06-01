@@ -144,7 +144,7 @@
         <Key limehd:codes="32" limehd:keyIcon="@drawable/sym_keyboard_space_light"
 
                 limehd:keyWidth="15%p" limehd:isRepeatable="true"/>
-        <Key limehd:keyLabel="."  limehd:popupKeyboard="@xml/popup_punctuation"
+        <Key limehd:codes="46" limehd:keyLabel="."  limehd:popupKeyboard="@xml/popup_punctuation"
                 limehd:keyWidth="10%p"/>
         <Key limehd:codes="10" limehd:keyIcon="@drawable/sym_keyboard_return_light" limehd:isModifier="true"
                 limehd:keyWidth="15%p" limehd:keyEdgeFlags="right"/>
@@ -165,7 +165,7 @@
         <Key limehd:codes="32" limehd:keyIcon="@drawable/sym_keyboard_space_light"
 
                 limehd:keyWidth="15%p" limehd:isRepeatable="true"/>
-        <Key limehd:keyLabel="."  limehd:popupKeyboard="@xml/popup_punctuation"
+        <Key limehd:codes="46" limehd:keyLabel="."  limehd:popupKeyboard="@xml/popup_punctuation"
                 limehd:keyWidth="10%p"/>
         <Key limehd:codes="10" limehd:keyIcon="@drawable/sym_keyboard_return_light" limehd:isModifier="true"
                 limehd:keyWidth="15%p" limehd:keyEdgeFlags="right"/>
