@@ -1502,7 +1502,7 @@ public class LIMEKeyboardBaseView extends View implements PointerTracker.UIProxy
     protected boolean onLongPress(Key popupKey) {
         // TODO if popupKey.popupCharacters has only one letter, send it as key without opening
         // mini keyboard.
-        if (!(!mLIMEPref.getLanguageMode() && popupKey.codes[0] == 46))//(不論拼音pinyin,速成ecj,倉頡cj, 注音phonetic輸入法)只處理非純英文模式鍵盤時長按 . 出現的全形符號選單 (前次修改是為了阻擋純英鍵盤長按出現的德文西文等字母)
+        if (popupKey.codes[0] != 46)//(不論拼音pinyin,速成ecj,倉頡cj, 注音phonetic輸入法) 長按 . 出現的全形符號選單 (前次修改是為了阻擋純英鍵盤長按出現的德文西文等字母)
             return false;
 
         View container = mMiniKeyboardCache.get(popupKey);
