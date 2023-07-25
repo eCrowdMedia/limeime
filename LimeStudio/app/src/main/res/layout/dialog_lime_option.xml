@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:focusable="false">
+
+    <LinearLayout
+        android:id="@+id/option_ime_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_dash_line"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/icon_ime_switch"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/arrowlong_switch" />
+
+        <TextView
+            android:id="@+id/text_ime_switch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="@dimen/option_dialog_item_margin"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:text="@string/keyboard_list"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/option_dialog_text_size" />
+
+        <ImageView
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center"
+            android:src="@drawable/mo_arrowsmall_right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/option_han_converter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/option_ime_switch"
+        android:background="@drawable/bg_bottom_dash_line"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/icon_han_converter"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/translate_tc" />
+
+        <TextView
+            android:id="@+id/text_han_converter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="@dimen/option_dialog_item_margin"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:text="@string/han_convert_option_list"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/option_dialog_text_size" />
+
+        <ImageView
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center"
+            android:src="@drawable/mo_arrowsmall_right" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/option_keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/option_han_converter"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/icon_keyboard"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/keyboardmerge" />
+
+        <TextView
+            android:id="@+id/text_keyboard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="@dimen/option_dialog_item_margin"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:text="@string/merge_keyboard"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/option_dialog_text_size" />
+    </LinearLayout>
+
+</RelativeLayout>

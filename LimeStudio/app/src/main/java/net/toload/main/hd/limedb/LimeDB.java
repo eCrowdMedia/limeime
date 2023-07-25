@@ -3368,6 +3368,7 @@ public class LimeDB extends LimeSQLiteOpenHelper {
                                 kobj = getKeyboardObj("phoneticet41");
                                 break;
                             case "eten26":
+                            case "hsu":  //Jeremy '12,7,6 Add HSU english keyboard support
                                 if (mLIMEPref.getParameterBoolean("number_row_in_english", false)) {
                                     kobj = getKeyboardObj("limenum");
                                 } else {
@@ -3376,13 +3377,6 @@ public class LimeDB extends LimeSQLiteOpenHelper {
                                 break;
                             case "eten26_symbol":
                                 kobj = getKeyboardObj("et26");
-                                break;
-                            case "hsu":  //Jeremy '12,7,6 Add HSU english keyboard support
-                                if (mLIMEPref.getParameterBoolean("number_row_in_english", false)) {
-                                    kobj = getKeyboardObj("limenum");
-                                } else {
-                                    kobj = getKeyboardObj("lime");
-                                }
                                 break;
                             case "hsu_symbol":
                                 kobj = getKeyboardObj("hsu");

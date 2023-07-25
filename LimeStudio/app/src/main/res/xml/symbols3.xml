@@ -71,7 +71,7 @@
     </Row>
     
     <Row>
-        <Key limehd:codes="-15" limehd:keyLabel="3/3"
+        <Key limehd:codes="-15" limehd:keyLabel="3/3 ▸"
                 limehd:keyWidth="15%p" limehd:isModifier="true"
                 limehd:keyEdgeFlags="left"/>
         <Key limehd:keyLabel="○" />

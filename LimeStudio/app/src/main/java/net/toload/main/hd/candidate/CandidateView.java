@@ -323,12 +323,12 @@ public class CandidateView extends View implements View.OnClickListener {
                     sx -= distanceX;
                 }
 
-                if (mLIMEPref.getParameterBoolean("candidate_switch", false)) {
-                    hasSlide = true;
-                    mTargetScrollX = sx;
-                    scrollTo(sx, getScrollY());
-                    currentX = getScrollX(); //Jeremy '12,7,6 set currentX to the left edge of current scrollview after scrolled
-                } else {
+//                if (mLIMEPref.getParameterBoolean("candidate_switch", false)) {
+//                    hasSlide = true;
+//                    mTargetScrollX = sx;
+//                    scrollTo(sx, getScrollY());
+//                    currentX = getScrollX(); //Jeremy '12,7,6 set currentX to the left edge of current scrollview after scrolled
+//                } else {
                     hasSlide = false;
                     if (distanceX < 0) {
                         goLeft = true;
@@ -339,7 +339,7 @@ public class CandidateView extends View implements View.OnClickListener {
                     } else {
                         mTargetScrollX = sx;
                     }
-                }
+//                }
 
                 return true;
             }

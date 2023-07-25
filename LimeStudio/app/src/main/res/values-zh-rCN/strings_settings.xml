@@ -75,7 +75,7 @@
     <string name="Similiar">关联字</string>
     <string name="mapping">对应表</string>
 
-    <string name="keyboard_list">LIME输入法切换</string>
+    <string name="keyboard_list">输入法切换</string>
 
     <string name="enable_emoji">开启 EMOJI 显示</string>
     <string name="enable_emoji_summary">依字根或中文组字显示图示, 由于字型支援的差异所以部份图示可能无法正确显示</string>
@@ -129,7 +129,7 @@
     <string name="han_convert_st">简转繁</string>
     <string name="han_convert_notify">中文简/繁体转换提示</string>
     <string name="han_convert_notify_summary">输入间隔时间超过60秒时提示转换的设定</string>
-    <string name="han_convert_option_list">中文简/繁体字码转换</string>
+    <string name="han_convert_option_list">中文简繁转换</string>
     <string name="selkey_option_list">设定选字键预选顺序</string>
 
 
@@ -214,7 +214,7 @@
     <!-- Label for soft enter key when it performs DONE action.  Must be short to fit on key! -->
     <string name="label_done_key">Done</string>
     <!-- Label for "switch to symbols" key.  Must be short to fit on key! -->
-    <string name="label_symbol_key">123</string>
+    <string name="label_symbol_key">#+=</string>
     <!-- Label for "switch to numeric" key.  Must be short to fit on key! -->
     <string name="label_alpha_key">ABC</string>
     <!-- Label for ALT modifier key.  Must be short to fit on key! -->

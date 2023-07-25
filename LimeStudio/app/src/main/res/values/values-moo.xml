@@ -3,4 +3,10 @@
     <dimen name="dialog_width">424dp</dimen>
     <dimen name="dialog_padding">24dp</dimen>
     <dimen name="dialog_text_size">44sp</dimen>
+    <dimen name="option_dialog_title_size">36sp</dimen>
+    <dimen name="option_dialog_text_size">32sp</dimen>
+    <dimen name="option_dialog_item_margin">16dp</dimen>
+    <dimen name="option_dialog_item_height">56dp</dimen>
+    <dimen name="option_dialog_divider_height">1dp</dimen>
+    <dimen name="icon_size">56dp</dimen>
 </resources>
