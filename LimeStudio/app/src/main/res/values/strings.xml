@@ -54,7 +54,6 @@
 
     <string name="sdcard_transfer_message">升級資料庫並轉移至裝置空間</string>
 
-    <string name="action_adfree">贊助開發團隊</string>
     <string name="action_reset">回復原始設定</string>
     <string name="action_news">最新消息</string>
     <string name="action_help">使用說明</string>
@@ -65,9 +64,6 @@
     <string name="setup_im_backup_message">資料庫備份中，請耐心等候 ...</string>
     <string name="setup_im_restore_message">資料庫還原中，請耐心等候 ...</string>
     <string name="setup_im_import_complete">資料庫匯入完成</string>
-    <string name="setup_im_backup_dropbox">Dropbox 備份</string>
-    <string name="setup_im_backup_dropbox_error_507">Dropbox 已沒有足夠的空間進行備份，請檢查</string>
-    <string name="setup_im_backup_google">Google 備份</string>
     <string name="setup_im_backup_local">本地備份</string>
     <string name="setup_im_database">備份/還原資料庫</string>
     <string name="setup_im_database_description">備份完整資料庫至本地/雲端空間，或者由本地/雲端空間還原完整資料庫檔案</string>
@@ -87,8 +83,6 @@
     <string name="setup_im_import_related">匯入關聯字庫</string>
     <string name="setup_im_import_related_default">匯入預設字庫</string>
     <string name="setup_im_import_related_default_confirm">請問您要匯入預設關聯字庫嗎?</string>
-    <string name="setup_im_restore_dropbox">Dropbox 還原</string>
-    <string name="setup_im_restore_google">Google 還原</string>
     <string name="setup_im_download_old">下載舊版程式</string>
     <string name="setup_im_download_old_summary">舊版程式與新版不相容, 請您下載完成後移除目前安裝的版本, 再至下載目錄取得並安裝舊版程式</string>
     <string name="setup_im_download_old_version">下載 LIMEHD v3.9.1</string>
@@ -131,12 +125,6 @@
 
     <string name="reset_dialog_title">回復原始資料與設定</string>
     <string name="reset_dialog_confirm">請問您要移除所有匯入的輸入法, 關聯字庫, 學習記錄並還原至系統初始設定嗎 ? 重置完成後請您重新開啟[萊姆輸入法]</string>
-    <string name="payment_dialog_title">贊助開發團隊</string>
-    <string name="payment_plan_1">USD 0.99 / 永久移除廣告</string>
-    <string name="payment_plan_2">USD 1.99 / 永久移除廣告</string>
-    <string name="payment_plan_3">USD 2.99 / 永久移除廣告</string>
-    <string name="payment_service_failed">Google Play 服務無法正常啟用，請稍後再試 !</string>
-    <string name="payment_service_success">感謝您對於 LIME 開發團隊的支持，我們會持續努力，提供更好的服務給所有的使用者 !!! \n\n 若程式下方仍顯示廣告區塊，請您完全退出萊姆輸入法設定程式後再重新進入。</string>
 
     <string name="default_menu_initial">設定輸入法</string>
     <string name="default_menu_related">管理關聯字庫</string>
