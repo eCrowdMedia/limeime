@@ -496,8 +496,8 @@ public class CandidateView extends View implements View.OnClickListener {
             Log.i(TAG, "doUpdateCandidatePopup(), mHeight:" + mHeight);
 
         //Jeremy '11,8.27 do vibrate and sound on candidateview expand button pressed.
-        if (!candidateExpanded)
-            mService.doVibrateSound(0);
+//        if (!candidateExpanded)
+//            mService.doVibrateSound(0);
 
         candidateExpanded = true;
         requestLayout();
@@ -1415,7 +1415,7 @@ public class CandidateView extends View implements View.OnClickListener {
             Log.i(TAG, "takeSelectedSuggestion():mSelectedIndex:" + mSelectedIndex);
         }
         //Jeremy '11,9,1 do vibrate and sound on suggestion picked from candidateview
-        if (vibrateSound) mService.doVibrateSound(0);
+//        if (vibrateSound) mService.doVibrateSound(0);
         hideComposing(); //Jeremy '12,5,6
         if (mCandidatePopupWindow != null && mCandidatePopupWindow.isShowing()) {
             hideCandidatePopup();
@@ -1453,7 +1453,7 @@ public class CandidateView extends View implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         //Jeremy '11,8.27 do vibrate and sound on candidateexpandedview close button pressed.
-        mService.doVibrateSound(0);
+//        mService.doVibrateSound(0);
 
         hideCandidatePopup();
     }

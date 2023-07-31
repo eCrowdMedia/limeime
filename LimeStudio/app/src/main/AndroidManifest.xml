@@ -24,7 +24,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.toload.main.hd" >
+    package="net.toload.main.hd">
 
     <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -42,11 +42,11 @@
     <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE"/> -->
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:backupAgent=".LIMEBackupAgent"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
 
         <!-- LIME Services -->
         <service
