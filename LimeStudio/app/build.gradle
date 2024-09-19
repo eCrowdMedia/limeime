@@ -90,6 +90,15 @@ android {
             keyPassword = 'android'
         }
 
+        engNana {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            storeFile = file('../mooInkNana.keystore')
+            storePassword =  'android'
+            keyAlias = 'android'
+            keyPassword = 'android'
+        }
+
     }
 
     buildTypes {
@@ -98,7 +107,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.engPro2
+            signingConfig signingConfigs.engNana
         }
     }
 
@@ -133,8 +142,11 @@ android {
             dimension "default"
         }
 
-
+        mooInkNana {
+            dimension "default"
+        }
     }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
@@ -144,6 +156,11 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
