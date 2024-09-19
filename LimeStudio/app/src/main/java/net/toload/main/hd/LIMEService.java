@@ -2110,7 +2110,7 @@ public class LIMEService extends InputMethodService implements
             Log.i(TAG, "showIMPicker()");
         buildActivatedIMList();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
         TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
         titleView.setText(getResources().getString(R.string.keyboard_list));
 
