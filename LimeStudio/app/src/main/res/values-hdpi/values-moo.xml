@@ -3,4 +3,5 @@
     <dimen name="dialog_padding">8dp</dimen>
     <dimen name="dialog_text_size">24sp</dimen>
     <dimen name="option_dialog_title_size">28sp</dimen>
+    <dimen name="option_dialog_text_size">24sp</dimen>
 </resources>
