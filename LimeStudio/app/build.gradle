@@ -144,6 +144,8 @@ android {
 
         mooInkNana {
             dimension "default"
+            resValue "string", "default_keyboard_size", "0.9"
+            resValue "string", "default_font_size", "0.9"
         }
     }
 
