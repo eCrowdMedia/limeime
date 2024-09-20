@@ -25,14 +25,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 30
+    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "net.toload.main.hd"
 
-        minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 528
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 529
         versionName '5.2.1'
 
         multiDexEnabled true
@@ -90,6 +90,15 @@ android {
             keyPassword = 'android'
         }
 
+        engNana {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            storeFile = file('../mooInkNana.keystore')
+            storePassword =  'android'
+            keyAlias = 'android'
+            keyPassword = 'android'
+        }
+
     }
 
     buildTypes {
@@ -98,7 +107,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.engPro2
+            signingConfig signingConfigs.engNana
         }
     }
 
@@ -133,8 +142,13 @@ android {
             dimension "default"
         }
 
-
+        mooInkNana {
+            dimension "default"
+            resValue "string", "default_keyboard_size", "0.9"
+            resValue "string", "default_font_size", "0.9"
+        }
     }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
@@ -144,6 +158,11 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
