@@ -962,7 +962,14 @@ public class LIMEKeyboardBaseView extends View implements PointerTracker.UIProxy
             mKeyboardChanged = false;
         }
         final Canvas canvas = mCanvas;
-        canvas.clipRect(mDirtyRect, Region.Op.REPLACE);
+        if (Build.VERSION.SDK_INT >= 28) {
+            canvas.save();
+            canvas.clipRect(mDirtyRect);
+            canvas.restore();
+        }
+        else {
+            canvas.clipRect(mDirtyRect, Region.Op.REPLACE);
+        }
 
         if (mKeyboard == null) return;
 

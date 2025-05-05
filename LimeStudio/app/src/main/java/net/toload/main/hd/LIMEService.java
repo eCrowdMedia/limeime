@@ -2110,7 +2110,7 @@ public class LIMEService extends InputMethodService implements
             Log.i(TAG, "showIMPicker()");
         buildActivatedIMList();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
         TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
         titleView.setText(getResources().getString(R.string.keyboard_list));
 
@@ -2151,6 +2151,10 @@ public class LIMEService extends InputMethodService implements
         if (listView != null) {
             listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
             listView.setDividerHeight(1);
+            // nana -> 不顯示最後一項的分割線
+            listView.setFooterDividersEnabled(false);
+            listView.addFooterView(new View(this));
+            // <--
         }
         Window window = mOptionsDialog.getWindow();
         // Jeremy '10, 4, 12

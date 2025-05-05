@@ -570,11 +570,12 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-    <style name="MooDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:windowFrame">@null</item>
+    <style name="MooDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowFrame">@drawable/background_outline_rect_2dp</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@android:color/white</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:backgroundDimEnabled">false</item>
