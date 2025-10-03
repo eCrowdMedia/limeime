@@ -32,14 +32,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
-import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -83,6 +81,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class LIMEService extends InputMethodService implements
         LIMEKeyboardBaseView.OnKeyboardActionListener {
@@ -90,7 +93,7 @@ public class LIMEService extends InputMethodService implements
     private static final boolean DEBUG = true;
     private static final String TAG = "LIMEService";
 
-    private static Thread queryThread; // queryThread for no-blocking I/O  Jeremy '15,6,1
+//    private static Thread queryThread; // queryThread for no-blocking I/O  Jeremy '15,6,1
 
     static final int KEYCODE_SWITCH_TO_SYMBOL_MODE = -2;
     static final int KEYCODE_SWITCH_TO_ENGLISH_MODE = -9;
@@ -150,8 +153,8 @@ public class LIMEService extends InputMethodService implements
 
     private LinkedList<Mapping> mCandidateList; //Jeremy '12,5,7 renamed from templist
 
-    private Vibrator mVibrator;
-    private AudioManager mAudioManager;
+//    private Vibrator mVibrator;
+//    private AudioManager mAudioManager;
 
 
     private boolean hasVibration = false;
@@ -247,7 +250,7 @@ public class LIMEService extends InputMethodService implements
     @Override
     public void onCreate() {
 
-        if (DEBUG) Log.i(TAG, "OnCreate()");
+        /*if (DEBUG) */Log.i(TAG, "OnCreate()");
 
         super.onCreate();
 
@@ -261,8 +264,8 @@ public class LIMEService extends InputMethodService implements
 
         mFixedCandidateViewOn = mLIMEPref.getFixedCandidateViewDisplay();
 
-        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
+//        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         mLongPressKeyTimeout = getResources().getInteger(R.integer.config_long_press_key_timeout); // Jeremy '11,8,15 read longpress timeout from config resources.
 
@@ -2258,6 +2261,21 @@ public class LIMEService extends InputMethodService implements
      * Update the list of available candidates from the current composing text.
      * This will need to be filled in by however you are determining candidates.
      */
+
+
+    private Observable mTask = null;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private void test() {
+        mTask = Observable.fromCallable(() -> {
+            return true;
+        });
+
+        mTask = Observable.create(emitter -> {
+            emitter.onNext(true);
+            emitter.onComplete();
+        });
+//        mTask.subscribeOn(Schedulers.io()).subscribe();
+    }
     public void updateCandidates(final boolean getAllRecords) {
 
         if (DEBUG) Log.i(TAG, "updateCandidate():Update Candidate mComposing:" + mComposing);
@@ -2284,22 +2302,28 @@ public class LIMEService extends InputMethodService implements
 
             final String finalKeyString = keyString;
             final boolean finalHasPhysicalKeyPressed = hasPhysicalKeyPressed;
-            if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-            queryThread = new Thread() {
+            mCompositeDisposable.clear();
 
-                public void run() {
+            Disposable queryTask = Observable.create(emitter -> {
+                    Log.d(TAG, "new query 1");
 
                     try {
                         list.addAll(SearchSrv.getMappingByCode(finalKeyString, !finalHasPhysicalKeyPressed, getAllRecords));
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
-                    try {
-                        sleep(0);
-                    } catch (InterruptedException ignored) {
-                        ignored.printStackTrace();
-                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
-                    }
+//                    try {
+//                        sleep(0);
+//                    } catch (InterruptedException ignored) {
+//                        ignored.printStackTrace();
+//                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                    }
+
+
+                if (emitter.isDisposed()) {
+                    Log.e(TAG, "dispose by outer");
+                    return;
+                }
                     //Jeremy '11,6,19 EZ and ETEN use "`" as IM Keys, and also custom may use "`".
                     if (list.size() > 0) {
                         // Setup sel key display if
@@ -2325,11 +2349,15 @@ public class LIMEService extends InputMethodService implements
                             else if (selkeyOption == 2) selkey = mixedModeSelkey + " " + selkey;
                         }
 
-                        try {
-                            sleep(0);
-                        } catch (InterruptedException ignored) {
-                            ignored.printStackTrace();
-                            return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                        try {
+//                            sleep(0);
+//                        } catch (InterruptedException ignored) {
+//                            ignored.printStackTrace();
+//                            return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                        }
+                        if (emitter.isDisposed()) {
+                            Log.e(TAG, "dispose by outer");
+                            return;
                         }
 
 
@@ -2415,18 +2443,25 @@ public class LIMEService extends InputMethodService implements
                                 && !keynameString.toUpperCase(Locale.US).equals(finalKeyString.toUpperCase(Locale.US))
                                 && !keynameString.trim().equals("")
                                 ) {
-                            try {
-                                sleep(0);
-                            } catch (InterruptedException ignored) {
-                                ignored.printStackTrace();
-                                return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                            try {
+//                                sleep(0);
+//                            } catch (InterruptedException ignored) {
+//                                ignored.printStackTrace();
+//                                return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                            }
+                            if (emitter.isDisposed()) {
+                                Log.e(TAG, "dispose by outer");
+                                return;
                             }
                             mCandidateView.setComposingText(keynameString);
                         }
+
                     }
-                }
-            };
-            queryThread.start();
+
+                emitter.onNext(true);
+                emitter.onComplete();
+            }).subscribeOn(Schedulers.io()).subscribe();
+            mCompositeDisposable.add(queryTask);
 
 
         } else
@@ -2489,9 +2524,11 @@ public class LIMEService extends InputMethodService implements
                         tempEnglishList.clear();
 
                         final boolean finalHasPhysicalKeyPressed = hasPhysicalKeyPressed;
-                        if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-                        queryThread = new Thread() {
-                            public void run() {
+                        mCompositeDisposable.clear();
+
+                        Disposable queryTask = Observable.create(emitter -> {
+                                Log.d(TAG, "new query 2");
+
                                 final Mapping self = new Mapping();
                                 self.setWord(tempEnglishWord.toString());
                                 self.setComposingCodeRecord();
@@ -2502,12 +2539,17 @@ public class LIMEService extends InputMethodService implements
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }
-                                try {
-                                    sleep(0);
-                                } catch (InterruptedException ignored) {
-                                    ignored.printStackTrace();
-                                    return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
-                                }
+//                                try {
+//                                    sleep(0);
+//                                } catch (InterruptedException ignored) {
+//                                    ignored.printStackTrace();
+//                                    return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                                }
+
+                            if (emitter.isDisposed()) {
+                                Log.e(TAG, "dispose by outer");
+                                return;
+                            }
 
                                 if ((suggestions != null ? suggestions.size() : 0) > 0) {
                                     list.add(self);
@@ -2519,11 +2561,15 @@ public class LIMEService extends InputMethodService implements
                                     if (disable_physical_selection && finalHasPhysicalKeyPressed) {
                                         selkey = "";
                                     }
-                                    try {
-                                        sleep(0);
-                                    } catch (InterruptedException ignored) {
-                                        ignored.printStackTrace();
-                                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                                    try {
+//                                        sleep(0);
+//                                    } catch (InterruptedException ignored) {
+//                                        ignored.printStackTrace();
+//                                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                                    }
+                                    if (emitter.isDisposed()) {
+                                        Log.e(TAG, "dispose by outer");
+                                        return;
                                     }
 
 
@@ -2568,9 +2614,11 @@ public class LIMEService extends InputMethodService implements
                                     //Jermy '11,8,14
                                     clearSuggestions();
                                 }
-                            }
-                        };
-                        queryThread.start();
+
+                            emitter.onNext(true);
+                            emitter.onComplete();
+                        }).subscribeOn(Schedulers.io()).subscribe();
+                        mCompositeDisposable.add(queryTask);
                     }
 
                 }
@@ -2600,47 +2648,54 @@ public class LIMEService extends InputMethodService implements
                 && !committedCandidate.getWord().equals("")) {
 
             final boolean finalHasPhysicalKeyPressed = hasPhysicalKeyPressed;
-            if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-            queryThread = new Thread() {
-                public void run() {
+            mCompositeDisposable.clear();
 
-                    LinkedList<Mapping> list = new LinkedList<>();
-                    //Jeremy '11,8,9 Insert completion suggestions from application
-                    //in front of related dictionary list in full-screen mode
-                    if (mCompletionOn) {
-                        list.addAll(buildCompletionList());
+            Disposable queryTask = Observable.create(emitter -> {
+                Log.d(TAG, "new query 3");
+
+                LinkedList<Mapping> list = new LinkedList<>();
+                //Jeremy '11,8,9 Insert completion suggestions from application
+                //in front of related dictionary list in full-screen mode
+                if (mCompletionOn) {
+                    list.addAll(buildCompletionList());
+                }
+
+
+                if (committedCandidate != null && hasMappingList) {
+                    if (emitter.isDisposed()) {
+                        Log.e(TAG, "dispose by outer");
+                        return;
                     }
 
+                    try {
+                        if (!committedCandidate.isEmojiRecord() && !committedCandidate.isChinesePunctuationSymbolRecord()) {
+                            list.addAll(SearchSrv.getRelatedPhrase(committedCandidate.getWord(), getAllRecords));
+                        }
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
 
-                    if (committedCandidate != null && hasMappingList) {
-                        if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-                        try {
-                            if(!committedCandidate.isEmojiRecord() && !committedCandidate.isChinesePunctuationSymbolRecord()){
-                                list.addAll(SearchSrv.getRelatedPhrase(committedCandidate.getWord(), getAllRecords));
-                            }
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
+                    if (list.size() > 0) {
+
+
+                        // Setup sel key display if
+                        String selkey = "1234567890";
+                        if (disable_physical_selection && finalHasPhysicalKeyPressed) {
+                            selkey = "";
                         }
 
-                        if (list.size() > 0) {
-
-
-                            // Setup sel key display if
-                            String selkey = "1234567890";
-                            if (disable_physical_selection && finalHasPhysicalKeyPressed) {
-                                selkey = "";
-                            }
-
-                            setSuggestions(list, finalHasPhysicalKeyPressed && !isFullscreenMode(), selkey);
-                        } else {
-                            committedCandidate = null;
-                            //Jermy '11,8,14
-                            clearSuggestions();
-                        }
+                        setSuggestions(list, finalHasPhysicalKeyPressed && !isFullscreenMode(), selkey);
+                    } else {
+                        committedCandidate = null;
+                        //Jermy '11,8,14
+                        clearSuggestions();
                     }
                 }
-            };
-            queryThread.start();
+
+                emitter.onNext(true);
+                emitter.onComplete();
+            }).subscribeOn(Schedulers.io()).subscribe();
+            mCompositeDisposable.add(queryTask);
         }
 
     }
@@ -3566,34 +3621,34 @@ public class LIMEService extends InputMethodService implements
         } else if (hasDistinctMultitouch && hasShiftPress) {
             hasShiftCombineKeyPressed = true;
         }
-        doVibrateSound(primaryCode);
+//        doVibrateSound(primaryCode);
 
 
     }
-
-    public void doVibrateSound(int primaryCode) {
-        if (DEBUG) Log.i(TAG, "doVibrateSound()");
-        if (hasVibration) {
-            //Jeremy '11,9,1 add preference on vibrate level
-            mVibrator.vibrate(mLIMEPref.getVibrateLevel());
-        }
-        if (hasSound) {
-            int sound = AudioManager.FX_KEYPRESS_STANDARD;
-            switch (primaryCode) {
-                case LIMEBaseKeyboard.KEYCODE_DELETE:
-                    sound = AudioManager.FX_KEYPRESS_DELETE;
-                    break;
-                case MY_KEYCODE_ENTER:
-                    sound = AudioManager.FX_KEYPRESS_RETURN;
-                    break;
-                case MY_KEYCODE_SPACE:
-                    sound = AudioManager.FX_KEYPRESS_SPACEBAR;
-                    break;
-            }
-            float FX_VOLUME = 1.0f;
-            mAudioManager.playSoundEffect(sound, FX_VOLUME);
-        }
-    }
+//
+//    public void doVibrateSound(int primaryCode) {
+//        if (DEBUG) Log.i(TAG, "doVibrateSound()");
+//        if (hasVibration) {
+//            //Jeremy '11,9,1 add preference on vibrate level
+//            mVibrator.vibrate(mLIMEPref.getVibrateLevel());
+//        }
+//        if (hasSound) {
+//            int sound = AudioManager.FX_KEYPRESS_STANDARD;
+//            switch (primaryCode) {
+//                case LIMEBaseKeyboard.KEYCODE_DELETE:
+//                    sound = AudioManager.FX_KEYPRESS_DELETE;
+//                    break;
+//                case MY_KEYCODE_ENTER:
+//                    sound = AudioManager.FX_KEYPRESS_RETURN;
+//                    break;
+//                case MY_KEYCODE_SPACE:
+//                    sound = AudioManager.FX_KEYPRESS_SPACEBAR;
+//                    break;
+//            }
+//            float FX_VOLUME = 1.0f;
+//            mAudioManager.playSoundEffect(sound, FX_VOLUME);
+//        }
+//    }
 
     /**
      * Last method to execute when key release
@@ -3626,8 +3681,10 @@ public class LIMEService extends InputMethodService implements
 
     @Override
     public void onDestroy() {
-        if (DEBUG)
-            Log.i(TAG, "onDestroy()");
+        /*if (DEBUG)
+            */Log.i(TAG, "onDestroy()");
+
+        mCompositeDisposable.clear();
 
         //jeremy 12,4,21 need to check again---
         //clearComposing(true); see no need to do this '12,4,21
