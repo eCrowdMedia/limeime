@@ -25,13 +25,22 @@
 package net.toload.main.hd;
 
 import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.content.Context;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class ApplicationTest extends ApplicationTestCase<Application> {
-    public ApplicationTest() {
-        super(Application.class);
+import androidx.test.core.app.ApplicationProvider;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class ApplicationTest {
+
+    @Test
+    public void testApplicationContext() {
+        Context context = ApplicationProvider.getApplicationContext();
+        assertTrue(context instanceof Application);
+
+        // 如果你有 package name，可以加這個
+        assertEquals("net.toload.main.hd", context.getPackageName());
     }
 }
