@@ -92,7 +92,7 @@ public class IMEInstaller {
                 installCandidates.add(new Pair<>(i, action));
         }
 
-        if (installCandidates.size() > 0)
+        if (!installCandidates.isEmpty())
             m_mooIMEManager.show();
 
         for (int i = 0; i < installCandidates.size(); i++) {
