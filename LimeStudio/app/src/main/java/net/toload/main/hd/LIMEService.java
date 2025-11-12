@@ -26,7 +26,6 @@ package net.toload.main.hd;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -2029,25 +2028,46 @@ public class LIMEService extends InputMethodService implements
      * Add by Jeremy '11,9,17 for han convert (tranditional <-> simplifed) options
      */
     private void showHanConvertPicker() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
-        TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
-        titleView.setText(getResources().getString(R.string.han_convert_option_list));
-        builder.setCustomTitle(titleView);
+        if (DEBUG)
+            Log.i(TAG, "showHanConvertPicker()");
+
+        // ① Inflate 自訂 layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rm_ime_option, null);
+        TextView titleView = dialogView.findViewById(R.id.title);
+        ListView listView = dialogView.findViewById(R.id.listView);
+
+        titleView.setText(getString(R.string.han_convert_option_list));
+
+        // ② 取得選項
         CharSequence[] items = getResources().getStringArray(R.array.han_convert_options);
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
-                this, R.layout.item_check_option, items);
+        int selectedIndex = mLIMEPref.getHanCovertOption();
 
-        builder.setSingleChoiceItems(adapter, mLIMEPref.getHanCovertOption(),
-                new DialogInterface.OnClickListener() {
+        // ③ 設定 adapter
+        ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<>(this, R.layout.item_check_option, items);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setItemChecked(selectedIndex, true);
 
-                    public void onClick(DialogInterface di, int position) {
-                        di.dismiss();
-                        handleHanConvertSelection(position);
-                    }
-                });
+        // ④ 分隔線
+        listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
+        listView.setDividerHeight(1);
+        listView.setFooterDividersEnabled(false);
+        listView.addFooterView(new View(this));
+
+        // ⑤ 點擊事件
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            mOptionsDialog.dismiss();
+            handleHanConvertSelection(position);
+        });
+
+        // ⑥ 建立 Dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
+        builder.setView(dialogView);
 
         createCustomAlertDialog(builder, mCandidateViewStandAlone.getWindowToken());
     }
+
 
     private void handleHanConvertSelection(int position) {
         mLIMEPref.setHanCovertOption(position);
@@ -2055,54 +2075,58 @@ public class LIMEService extends InputMethodService implements
     }
 
     private void handleReadmooOption() {
+        if (DEBUG)
+            Log.i(TAG, "handleReadmooOption()");
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_lime_option, null);
-        builder.setView(view);
+        // ① inflate 自訂 layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_lime_option, null);
 
-        LinearLayout itemSwitchIM = view.findViewById(R.id.option_ime_switch);
-        itemSwitchIM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOptionsDialog.dismiss();
-                showIMPicker();
-            }
+        // ② 綁定各項 UI
+        LinearLayout itemSwitchIM = dialogView.findViewById(R.id.option_ime_switch);
+        LinearLayout hanConvert = dialogView.findViewById(R.id.option_han_converter);
+        LinearLayout itemSplitKeyboard = dialogView.findViewById(R.id.option_keyboard);
+        ImageView keyboardIcon = dialogView.findViewById(R.id.icon_keyboard);
+        TextView keyboardText = dialogView.findViewById(R.id.text_keyboard);
+
+        // ③ 設定鍵盤狀態顯示
+        if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
+            keyboardIcon.setImageResource(R.drawable.keyboardmerge);
+            keyboardText.setText(getString(R.string.merge_keyboard));
+        } else {
+            keyboardIcon.setImageResource(R.drawable.keyboardbreak);
+            keyboardText.setText(getString(R.string.split_keyboard));
+        }
+
+        // ④ 點擊事件
+        itemSwitchIM.setOnClickListener(v -> {
+            mOptionsDialog.dismiss();
+            showIMPicker();
         });
 
-        LinearLayout hanConvert = view.findViewById(R.id.option_han_converter);
-        hanConvert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOptionsDialog.dismiss();
-                showHanConvertPicker();
-            }
+        hanConvert.setOnClickListener(v -> {
+            mOptionsDialog.dismiss();
+            showHanConvertPicker();
         });
 
-        ImageView keyboardIcon = view.findViewById(R.id.icon_keyboard);
-        keyboardIcon.setImageResource((mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) ?
-                R.drawable.keyboardmerge : R.drawable.keyboardbreak);
-
-        TextView keyboardText = view.findViewById(R.id.text_keyboard);
-        keyboardText.setText((mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) ?
-                getString(R.string.merge_keyboard) : getString(R.string.split_keyboard));
-
-        LinearLayout itemSplitKeyboard = view.findViewById(R.id.option_keyboard);
-        itemSplitKeyboard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOptionsDialog.dismiss();
-                if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_NEVER) {
-                    mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS);
-                } else if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
-                    mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_NEVER);
-                }
-                handleClose();
-                mKeyboardSwitcher.resetKeyboards(true);
+        itemSplitKeyboard.setOnClickListener(v -> {
+            mOptionsDialog.dismiss();
+            if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_NEVER) {
+                mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS);
+            } else if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
+                mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_NEVER);
             }
+            handleClose();
+            mKeyboardSwitcher.resetKeyboards(true);
         });
 
+        // ⑤ 建立 AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
+        builder.setView(dialogView);
+
+        // ⑥ 顯示
         createCustomAlertDialog(builder, mInputView.getWindowToken());
     }
+
 
     /**
      * Add by Jeremy '10, 3, 24 for IM picker menu in options menu
@@ -2113,12 +2137,14 @@ public class LIMEService extends InputMethodService implements
             Log.i(TAG, "showIMPicker()");
         buildActivatedIMList();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
-        TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
-        titleView.setText(getResources().getString(R.string.keyboard_list));
+        // ① inflate 自訂整體 layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rm_ime_option, null);
+        TextView titleView = dialogView.findViewById(R.id.title);
+        ListView listView = dialogView.findViewById(R.id.listView);
 
-        builder.setCustomTitle(titleView);
+        titleView.setText(getString(R.string.keyboard_list));
 
+        // ② 準備清單內容
         int expandSize = mSupportEInkHandwriteIme ? 1 : 0;
         CharSequence[] items = new CharSequence[activatedIMNameList.size() + expandSize];
         int curKB = 0;
@@ -2129,42 +2155,43 @@ public class LIMEService extends InputMethodService implements
         }
 
         if (mSupportEInkHandwriteIme) {
-            // "com.eink.einkime/.tcime.ZhTwHandWriteIME";
             items[items.length - 1] = "手寫輸入法";
         }
 
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
-                this, R.layout.item_check_option, items);
+        // ③ 建立 adapter
+        ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<>(this, R.layout.item_check_option, items);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setItemChecked(curKB, true);
 
-        builder.setSingleChoiceItems(adapter, curKB,
-                new DialogInterface.OnClickListener() {
+        // ④ 自訂分隔線
+        listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
+        listView.setDividerHeight(1);
+        listView.setFooterDividersEnabled(false);
+        listView.addFooterView(new View(this)); // 不顯示最後一條分隔線
 
-                    public void onClick(DialogInterface di, int position) {
-                        di.dismiss();
-                        handleIMSelection(position);
-                    }
-                });
-        // Jeremy '11,8,28 Use candidate instead of mInputview because mInputView may not present when using physical keyboard
+        // ⑤ 點擊事件
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            mOptionsDialog.dismiss();
+            handleIMSelection(position);
+        });
+
+        // ⑥ 建立 AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
+        builder.setView(dialogView);
+
         createCustomAlertDialog(builder, mInputView.getWindowToken());
     }
 
     private void createCustomAlertDialog(AlertDialog.Builder builder, IBinder windowToken) {
         mOptionsDialog = builder.create();
-        ListView listView = mOptionsDialog.getListView();
-        if (listView != null) {
-            listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
-            listView.setDividerHeight(1);
-            // nana -> 不顯示最後一項的分割線
-            listView.setFooterDividersEnabled(false);
-            listView.addFooterView(new View(this));
-            // <--
-        }
+
         Window window = mOptionsDialog.getWindow();
-        // Jeremy '10, 4, 12
-        // The IM is not initialialized. do nothing here if window=null.
-        assert window != null;
+        if (window == null) return;
+
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.token = windowToken;  //always there Jeremy '12,5,4
+        lp.token = windowToken;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
@@ -2172,6 +2199,7 @@ public class LIMEService extends InputMethodService implements
         }
         window.setAttributes(lp);
         window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+
         mOptionsDialog.setCanceledOnTouchOutside(true);
         mOptionsDialog.show();
     }
