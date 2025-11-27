@@ -106,6 +106,15 @@ android {
             keyPassword = 'android'
         }
 
+        engChill {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            storeFile = file('../mooInkChill-eng.keystore')
+            storePassword =  'android'
+            keyAlias = 'platform'
+            keyPassword = 'android'
+        }
+
     }
 
     buildTypes {
@@ -114,7 +123,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.engPro2
+            signingConfig signingConfigs.engChill
         }
     }
 
@@ -153,6 +162,10 @@ android {
             dimension "default"
             resValue "string", "default_keyboard_size", "0.9"
             resValue "string", "default_font_size", "0.9"
+        }
+
+        mooInkChill {
+            dimension "default"
         }
     }
 

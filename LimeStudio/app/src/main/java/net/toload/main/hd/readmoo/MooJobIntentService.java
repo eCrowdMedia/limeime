@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
+import net.toload.main.hd.BuildConfig;
+
 public class MooJobIntentService extends JobIntentService {
     private final static String TAG = "[MooJobIntentService]";
     public static final int JOB_ID = 0xa0;
@@ -33,13 +35,21 @@ public class MooJobIntentService extends JobIntentService {
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        // if screen lock is on, HAVE TO wait util system fully ready
+        // 判斷要抓哪個 package
+        String packageName;
+        String flavor = BuildConfig.FLAVOR;
+
+        if ("mooInkChill".equals(flavor)) {
+            packageName = "com.readmoo.mooinkneo.app";
+        } else {
+            packageName = "com.readmoo.mooreader.eink";
+        }
+
         PackageManager pm = getPackageManager();
         try {
-            pm.getApplicationInfo("com.readmoo.mooreader.eink",
-                    PackageManager.MATCH_SYSTEM_ONLY);
+            pm.getApplicationInfo(packageName, PackageManager.MATCH_SYSTEM_ONLY);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "may not ready yet ?");
+            Log.e(TAG, "may not ready yet for " + packageName);
             e.printStackTrace();
             return;
         }

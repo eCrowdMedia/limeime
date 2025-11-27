@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import net.toload.main.hd.BuildConfig;
+
 
 public class MooService extends IntentService {
     private static final String TAG = "[MooService]";
@@ -33,25 +35,33 @@ public class MooService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         // if screen lock is on, HAVE TO wait util system fully ready
         PackageManager pm = getPackageManager();
-        String packageName = "com.readmoo.mooinkneo.debug";
-//        try {
-//            if (Build.VERSION.SDK_INT <= 28) {
-//                pm.getApplicationInfo(packageName,
-//                        PackageManager.MATCH_SYSTEM_ONLY);
-//            } else {
-//                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SHARED_LIBRARY_FILES);
-//                int uid = packageInfo.applicationInfo.uid;
-////                String sharedUserId = packageInfo.sharedUserId;
-//                if (uid != 1000) {
-//                    Log.e(TAG, packageName + " is not system app, not allowed to install ime files");
-//                    return;
-//                }
-//            }
-//        } catch (PackageManager.NameNotFoundException e) {
-//            Log.e(TAG, "may not ready yet ?");
-//            e.printStackTrace();
-//            return;
-//        }
+        // 判斷要抓哪個 package
+        String packageName;
+        String flavor = BuildConfig.FLAVOR;
+
+        if ("mooInkChill".equals(flavor)) {
+            packageName = "com.readmoo.mooinkneo.app";
+        } else {
+            packageName = "com.readmoo.mooreader.eink";
+        }
+        try {
+            if (Build.VERSION.SDK_INT <= 28) {
+                pm.getApplicationInfo(packageName,
+                        PackageManager.MATCH_SYSTEM_ONLY);
+            } else {
+                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SHARED_LIBRARY_FILES);
+                int uid = packageInfo.applicationInfo.uid;
+//                String sharedUserId = packageInfo.sharedUserId;
+                if (uid != 1000) {
+                    Log.e(TAG, packageName + " is not system app, not allowed to install ime files");
+                    return;
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "may not ready yet ?");
+            e.printStackTrace();
+            return;
+        }
 
         m_installer.exec();
     }
