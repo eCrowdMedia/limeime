@@ -40,7 +40,7 @@ public class MooService extends IntentService {
         String flavor = BuildConfig.FLAVOR;
 
         if ("mooInkChill".equals(flavor)) {
-            packageName = "com.readmoo.mooinkneo.app";
+            packageName = "com.readmoo.mooinkneo";
         } else {
             packageName = "com.readmoo.mooreader.eink";
         }
