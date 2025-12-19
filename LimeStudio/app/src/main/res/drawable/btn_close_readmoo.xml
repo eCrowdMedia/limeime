@@ -23,6 +23,13 @@
   ~  *
   ~  */
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_focused="false" android:drawable="@drawable/mo_close"/>
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 設定顯示尺寸 -->
+    <item
+        android:drawable="@drawable/mo_close"
+        android:width="@dimen/icon_size"
+        android:height="@dimen/icon_size"
+        />
+
+</layer-list>
