@@ -1,37 +1,27 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="@dimen/dialog_width_root"
-    android:layout_height="wrap_content">
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+     android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/dialog_padding_horizontal"
+    android:paddingVertical="@dimen/dialog_padding">
 
-    <RelativeLayout
-        android:layout_width="@dimen/dialog_width_root"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:id="@+id/main"
-            android:layout_width="@dimen/dialog_width"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/background_outline_rect_2dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/dialog_padding">
-
-        <TextView android:id="@+id/text"
+        <TextView
+            android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAppearance="@style/Body1"
-            android:text="@string/imeInstallation"/>
+            android:text="@string/imeInstallation" />
 
-        <Button android:id="@+id/close"
-            android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/close"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dialog_padding"
             android:text="@string/close"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
-        </LinearLayout>
-    </RelativeLayout>
-</FrameLayout>
+</LinearLayout>
