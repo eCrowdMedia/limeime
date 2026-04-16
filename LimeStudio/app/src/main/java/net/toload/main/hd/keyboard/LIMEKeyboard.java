@@ -77,6 +77,7 @@ public class LIMEKeyboard extends LIMEBaseKeyboard {
     private static Drawable mDoneKeyIcon;
 
     private static Drawable mSearchKeyIcon;
+    private boolean mEnterKeyNeedsBlackBg = false;
     private static Drawable mSpaceKeySlidingLeftArrow;
     private static Drawable mSpaceKeySlidingRightArrow;
     private static int mSpaceKeySlidingTextSize;
@@ -270,6 +271,7 @@ public class LIMEKeyboard extends LIMEBaseKeyboard {
     }
     
     public void setImeOptions(Resources res, int mode, int options) {
+        mEnterKeyNeedsBlackBg = false;
         if (mEnterKey != null) {
             // Reset some of the rarely used attributes.
             mEnterKey.popupCharacters = null;
@@ -296,6 +298,7 @@ public class LIMEKeyboard extends LIMEBaseKeyboard {
                 case EditorInfo.IME_ACTION_SEARCH:
                     mEnterKey.icon = mSearchKeyIcon;
                     mEnterKey.label = null;
+                    mEnterKeyNeedsBlackBg = true;
                     break;
                 case EditorInfo.IME_ACTION_SEND:
                     mEnterKey.iconPreview = null;
@@ -483,6 +486,10 @@ public class LIMEKeyboard extends LIMEBaseKeyboard {
      */
     public void setKeyboardSwitcher(LIMEKeyboardSwitcher keyboardswitcher){
     	mKeyboardSwitcher = keyboardswitcher;
+    }
+
+    public boolean isEnterKeyNeedsBlackBg() {
+        return mEnterKeyNeedsBlackBg;
     }
     
 

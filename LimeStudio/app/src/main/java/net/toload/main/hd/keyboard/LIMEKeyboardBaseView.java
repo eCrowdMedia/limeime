@@ -1014,6 +1014,15 @@ public class LIMEKeyboardBaseView extends View implements PointerTracker.UIProxy
             canvas.translate(key.x + kbdPaddingLeft, key.y + kbdPaddingTop);
             keyBackground.draw(canvas);
 
+            // Draw black background for search key on enter
+            if (key.codes[0] == LIMEBaseKeyboard.KEYCODE_ENTER
+                    && mKeyboard instanceof LIMEKeyboard
+                    && ((LIMEKeyboard) mKeyboard).isEnterKeyNeedsBlackBg()) {
+                paint.setColor(0xFF000000);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(0, 0, key.width, key.height, paint);
+            }
+
             boolean shouldDrawIcon = true;
             if (label != null) {
                 // For characters, use large font. For labels like "Done", use small font.
