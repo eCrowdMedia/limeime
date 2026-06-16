@@ -713,12 +713,12 @@ public class LIMEKeyboardBaseView extends View implements PointerTracker.UIProxy
                                 swipeLeft();
                                 return true;
                             }
-                        } else if (velocityY < -mSwipeThreshold && absX < absY && deltaY < -travelY) {
+                        } /*else if (velocityY < -mSwipeThreshold && absX < absY && deltaY < -travelY) {
                             if (mDisambiguateSwipe && endingVelocityY <= velocityY / 4) {
                                 swipeUp();
                                 return true;
                             }
-                        } else if (velocityY > mSwipeThreshold && absX < absY / 2 && deltaY > travelY) {
+                        } */else if (velocityY > mSwipeThreshold && absX < absY / 2 && deltaY > travelY) {
                             if (mDisambiguateSwipe && endingVelocityY >= velocityY / 4) {
                                 swipeDown();
                                 return true;
@@ -962,7 +962,14 @@ public class LIMEKeyboardBaseView extends View implements PointerTracker.UIProxy
             mKeyboardChanged = false;
         }
         final Canvas canvas = mCanvas;
-        canvas.clipRect(mDirtyRect, Region.Op.REPLACE);
+        if (Build.VERSION.SDK_INT >= 28) {
+            canvas.save();
+            canvas.clipRect(mDirtyRect);
+            canvas.restore();
+        }
+        else {
+            canvas.clipRect(mDirtyRect, Region.Op.REPLACE);
+        }
 
         if (mKeyboard == null) return;
 
@@ -1006,6 +1013,15 @@ public class LIMEKeyboardBaseView extends View implements PointerTracker.UIProxy
             }
             canvas.translate(key.x + kbdPaddingLeft, key.y + kbdPaddingTop);
             keyBackground.draw(canvas);
+
+            // Draw black background for search key on enter
+            if (key.codes[0] == LIMEBaseKeyboard.KEYCODE_ENTER
+                    && mKeyboard instanceof LIMEKeyboard
+                    && ((LIMEKeyboard) mKeyboard).isEnterKeyNeedsBlackBg()) {
+                paint.setColor(0xFF000000);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(0, 0, key.width, key.height, paint);
+            }
 
             boolean shouldDrawIcon = true;
             if (label != null) {

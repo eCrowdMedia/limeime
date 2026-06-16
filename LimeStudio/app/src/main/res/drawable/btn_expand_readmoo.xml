@@ -24,6 +24,17 @@
   ~  */
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/mo_arrowsmall_down"/>
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+<!-- 設定顯示尺寸 -->
+<item
+    android:drawable="@drawable/mo_arrowsmall_down"
+    android:width="@dimen/icon_size"
+    android:height="@dimen/icon_size"
+    android:insetLeft="2dp"
+    android:insetTop="2dp"
+    android:insetRight="2dp"
+    android:insetBottom="2dp"
+    />
+
+</layer-list>

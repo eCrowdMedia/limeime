@@ -55,7 +55,6 @@ import net.toload.main.hd.global.LIMEUtilities;
 import net.toload.main.hd.limedb.LimeDB;
 import net.toload.main.hd.limesettings.LIMEPreferenceHC;
 import net.toload.main.hd.ui.HelpDialog;
-import net.toload.main.hd.ui.PaymentDialog;
 import net.toload.main.hd.ui.ShareDialog;
 
 import java.util.List;
@@ -369,17 +368,7 @@ public class NavigationDrawerFragment extends Fragment {
             AlertDialog alert = builder.create();
             alert.show();
 
-        }else if(item.getItemId() == R.id.action_adfree){
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            PaymentDialog dialog = PaymentDialog.newInstance();
-            dialog.show(ft, "paymentdialog");
         }
-
-        /*else if(item.getItemId() == R.id.action_news){
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            NewsDialog dialog = NewsDialog.newInstance();
-            dialog.show(ft, "newsdialog");
-        }*/
         /**
          *
          Intent download = new Intent(v.getContext(), DownloadActivity.class);

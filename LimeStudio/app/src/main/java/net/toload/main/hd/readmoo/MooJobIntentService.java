@@ -8,11 +8,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
+import net.toload.main.hd.BuildConfig;
+
 public class MooJobIntentService extends JobIntentService {
     private final static String TAG = "[MooJobIntentService]";
     public static final int JOB_ID = 0xa0;
 
     private IMEInstaller m_installer;
+    private static final String PACKAGE_MOOINK_CHILL = "com.readmoo.mooinkneo";
+    private static final String PACKAGE_MOOREADER_EINK = "com.readmoo.mooreader.eink";
 
 
     public static void enqueueWork(Context context, Intent work) {
@@ -33,17 +37,47 @@ public class MooJobIntentService extends JobIntentService {
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        // if screen lock is on, HAVE TO wait util system fully ready
-        PackageManager pm = getPackageManager();
-        try {
-            pm.getApplicationInfo("com.readmoo.mooreader.eink",
-                    PackageManager.MATCH_SYSTEM_ONLY);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "may not ready yet ?");
-            e.printStackTrace();
+        String flavor = BuildConfig.FLAVOR;
+        String packageName = resolvePackageName(flavor, intent);
+
+        if (packageName == null) {
+            Log.w(TAG, "no package resolved for flavor=" + flavor);
             return;
         }
 
-        m_installer.exec();
+        if (!isPackageInstalled(packageName)) {
+            Log.w(TAG, "package not ready: " + packageName);
+            return;
+        }
+
+        if (m_installer == null) {
+            m_installer = new IMEInstaller(this);
+        }
+
+        try {
+            m_installer.exec();
+        } catch (Exception e) {
+            Log.e(TAG, "installer exec failed for " + packageName, e);
+        }
+    }
+
+    private String resolvePackageName(String flavor, Intent intent) {
+        if (intent != null && intent.hasExtra("packageName")) {
+            String fromIntent = intent.getStringExtra("packageName");
+            if (fromIntent != null && !fromIntent.isEmpty()) return fromIntent;
+        }
+
+        if ("mooInkChill".equals(flavor)) return PACKAGE_MOOINK_CHILL;
+        return PACKAGE_MOOREADER_EINK;
+    }
+
+    private boolean isPackageInstalled(String packageName) {
+        PackageManager pm = getPackageManager();
+        try {
+            pm.getApplicationInfo(packageName, PackageManager.MATCH_SYSTEM_ONLY);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 }

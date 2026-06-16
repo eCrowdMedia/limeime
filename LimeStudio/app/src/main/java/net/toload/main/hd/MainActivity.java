@@ -54,13 +54,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.android.vending.billing.IInAppBillingService;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import net.toload.main.hd.data.Im;
 import net.toload.main.hd.global.LIME;
@@ -70,7 +63,6 @@ import net.toload.main.hd.ui.HelpDialog;
 import net.toload.main.hd.ui.ImportDialog;
 import net.toload.main.hd.ui.ManageImFragment;
 import net.toload.main.hd.ui.ManageRelatedFragment;
-import net.toload.main.hd.ui.NewsDialog;
 import net.toload.main.hd.ui.SetupImFragment;
 import net.toload.main.hd.ui.ShareDbRunnable;
 import net.toload.main.hd.ui.ShareRelatedDbRunnable;
@@ -109,85 +101,9 @@ public class MainActivity extends AppCompatActivity
     private MainActivityHandler handler;
     private Thread sharethread;
 
-    //private Activity activity;
-
-    //Admob
-    InterstitialAd mInterstitialAd;
-    Boolean intersitialAdShowed = true;
-
-    IInAppBillingService mService;
-    ServiceConnection mServiceConn = new ServiceConnection() {
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name,
-                                       IBinder service) {
-            mService = IInAppBillingService.Stub.asInterface(service);
-
-            boolean paymentFlag = mLIMEPref.getParameterBoolean(Lime.PAYMENT_FLAG, false);
-            if (!paymentFlag) {
-                try {
-                    Bundle ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null);
-                    int response = ownedItems.getInt("RESPONSE_CODE");
-                    if (response == 0) {
-                        ArrayList<String> owned = ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
-                        ArrayList<String> purchaseDataList = ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
-                        ArrayList<String> signatureList = ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE_LIST");
-                        //String continuationToken = ownedItems.getString("INAPP_CONTINUATION_TOKEN");
-
-                        assert purchaseDataList != null;
-                        for (int i = 0; i < purchaseDataList.size(); ++i) {
-                            String purchaseData = purchaseDataList.get(i);
-                            assert signatureList != null;
-                            String signature = signatureList.get(i);
-                            assert owned != null;
-                            String sku = owned.get(i);
-                            mLIMEPref.setParameter(Lime.PAYMENT_FLAG, true);
-                            mLIMEPref.setParameter("purchanseData", purchaseData);
-                            mLIMEPref.setParameter("signature", signature);
-                            mLIMEPref.setParameter("sku", sku);
-                        }
-
-                    }
-
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
-
-   /* @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-         if (requestCode == 1001) {
-             String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
-            //int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
-            //String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
-
-            if (resultCode == RESULT_OK) {
-                mLIMEPref.setParameter(Lime.PAYMENT_FLAG, true);
-                showToastMessage(getResources().getString(R.string.payment_service_success), Toast.LENGTH_LONG);
-                //Log.i("LIME", "purchasing complete " + new Date() + " / " + purchaseData);
-            }
-         }
-
-    }*/
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mService != null) {
-            unbindService(mServiceConn);
-        }
     }
 
     @Override
@@ -232,28 +148,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://net.toload.main.hd/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
-    }
-
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -284,11 +178,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
-        boolean paymentflag = mLIMEPref.getParameterBoolean(Lime.PAYMENT_FLAG, false);
-        if (!paymentflag) {
-            purchaseVerification();
-        }
 
         // Handle Import Text from other application
         Intent intent = getIntent();
@@ -339,10 +228,6 @@ public class MainActivity extends AppCompatActivity
             dialog.show(ft, "helpdialog");
             mLIMEPref.setParameter("current_version", versionstr);
         }
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private String getContentName(ContentResolver resolver, Uri uri) {
@@ -382,36 +267,6 @@ public class MainActivity extends AppCompatActivity
             ImportDialog dialog = ImportDialog.newInstance(importtext);
             dialog.show(ft, "importdialog");
         }
-    }
-
-    public void purchaseVerification() {
-        Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
-        serviceIntent.setPackage("com.android.vending");
-        mService = null;
-        bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
-
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .build();
-
-        //Admob IntersitialAD
-        //Only show intersitialAd for one time.  It's quite annoying
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(LIME.publisher);
-
-        mInterstitialAd.loadAd(adRequest);
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            public void onAdLoaded() {
-                if (intersitialAdShowed) return;
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                    intersitialAdShowed = true;
-                    mInterstitialAd.setAdListener(null);
-                    mInterstitialAd = null; //destroy mintersitialAd
-                }
-            }
-        });
     }
 
     public void initialImList() {
@@ -506,42 +361,6 @@ public class MainActivity extends AppCompatActivity
         }*/
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void purchase(String productid) {
-
-        if (connManager.getActiveNetworkInfo() != null && connManager.getActiveNetworkInfo().isConnected()) {
-
-            if (mService != null) {
-
-                Bundle buyIntentBundle;
-                try {
-                    buyIntentBundle = mService.getBuyIntent(3, getPackageName(),
-                            productid, "inapp", "callback/" + productid);
-
-                    int status = buyIntentBundle.getInt("RESPONSE_CODE");
-
-                    if (status == 0) {
-                        PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
-                        try {
-                            assert pendingIntent != null;
-                            startIntentSenderForResult(pendingIntent.getIntentSender(),
-                                    Lime.PAYMENT_REQUEST_CODE, new Intent(), 0, 0, 0);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        showToastMessage(getResources().getString(R.string.payment_service_failed), Toast.LENGTH_LONG);
-                    }
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                showToastMessage(getResources().getString(R.string.payment_service_failed), Toast.LENGTH_LONG);
-            }
-        } else {
-            showToastMessage(getResources().getString(R.string.error_network_failed), Toast.LENGTH_LONG);
-        }
     }
 
     public void showToastMessage(String msg, int length) {
@@ -739,35 +558,5 @@ public class MainActivity extends AppCompatActivity
         mLIMEPref.setParameter("switch_english_mode", switch_english_mode);
 */
 
-    }
-
-    public void showMessageBoard() {
-        try {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            NewsDialog dialog = NewsDialog.newInstance();
-            dialog.show(ft, "newsdialog");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://net.toload.main.hd/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
     }
 }

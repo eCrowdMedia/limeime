@@ -892,8 +892,9 @@ public class SearchServer {
             final String selectedWord = selectedMapping.getWord();
 
             Thread learnLDPhraseThread = new Thread() {
+                @Override
                 public void run() {
-
+                    Log.d("[LIMEService]", "new learnLDPhraseThread 1");
                     if (!bestSuggestionList.isEmpty()) {
                         for (int j = 0; j < bestSuggestionList.size(); j++) {
                             //TODO:should learn QP code for phonetic table

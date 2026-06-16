@@ -54,7 +54,6 @@
 
     <string name="sdcard_transfer_message">升级数据库并转移至装置空间</string>
 
-    <string name="action_adfree">赞助开发团队</string>
     <string name="action_reset">回复原始设定</string>
     <string name="action_news">最新消息</string>
     <string name="action_help">使用说明</string>
@@ -65,10 +64,6 @@
     <string name="setup_im_backup_message">数据库备份中，请耐心等候 ...</string>
     <string name="setup_im_restore_message">数据库还原中，请耐心等候 ...</string>
     <string name="setup_im_import_complete">数据库汇入完成</string>
-    <string name="setup_im_backup_dropbox">Dropbox 备份</string>
-    <string name="setup_im_backup_dropbox_error_507">Dropbox 已没有足够的空间进行备份，请检查</string>
-    <string name="setup_im_backup_google">Google 备份</string>
-    <string name="setup_im_backup_local">本地备份</string>
     <string name="setup_im_database">备份/还原数据库</string>
     <string name="setup_im_database_description">备份完整数据库至本地/云端空间，或者由本地/云端空间还原完整数据库文档</string>
     <string name="setup_im_grant_permission">请授权储存空间存取以启用输入法汇入与资料库备份还原功能</string>

@@ -26,20 +26,17 @@ package net.toload.main.hd;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
-import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -83,6 +80,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class LIMEService extends InputMethodService implements
         LIMEKeyboardBaseView.OnKeyboardActionListener {
@@ -90,7 +92,7 @@ public class LIMEService extends InputMethodService implements
     private static final boolean DEBUG = true;
     private static final String TAG = "LIMEService";
 
-    private static Thread queryThread; // queryThread for no-blocking I/O  Jeremy '15,6,1
+//    private static Thread queryThread; // queryThread for no-blocking I/O  Jeremy '15,6,1
 
     static final int KEYCODE_SWITCH_TO_SYMBOL_MODE = -2;
     static final int KEYCODE_SWITCH_TO_ENGLISH_MODE = -9;
@@ -150,8 +152,8 @@ public class LIMEService extends InputMethodService implements
 
     private LinkedList<Mapping> mCandidateList; //Jeremy '12,5,7 renamed from templist
 
-    private Vibrator mVibrator;
-    private AudioManager mAudioManager;
+//    private Vibrator mVibrator;
+//    private AudioManager mAudioManager;
 
 
     private boolean hasVibration = false;
@@ -247,7 +249,7 @@ public class LIMEService extends InputMethodService implements
     @Override
     public void onCreate() {
 
-        if (DEBUG) Log.i(TAG, "OnCreate()");
+        /*if (DEBUG) */Log.i(TAG, "OnCreate()");
 
         super.onCreate();
 
@@ -261,8 +263,8 @@ public class LIMEService extends InputMethodService implements
 
         mFixedCandidateViewOn = mLIMEPref.getFixedCandidateViewDisplay();
 
-        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        mVibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
+//        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         mLongPressKeyTimeout = getResources().getInteger(R.integer.config_long_press_key_timeout); // Jeremy '11,8,15 read longpress timeout from config resources.
 
@@ -2026,25 +2028,46 @@ public class LIMEService extends InputMethodService implements
      * Add by Jeremy '11,9,17 for han convert (tranditional <-> simplifed) options
      */
     private void showHanConvertPicker() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
-        TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
-        titleView.setText(getResources().getString(R.string.han_convert_option_list));
-        builder.setCustomTitle(titleView);
+        if (DEBUG)
+            Log.i(TAG, "showHanConvertPicker()");
+
+        // ① Inflate 自訂 layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rm_ime_option, null);
+        TextView titleView = dialogView.findViewById(R.id.title);
+        ListView listView = dialogView.findViewById(R.id.listView);
+
+        titleView.setText(getString(R.string.han_convert_option_list));
+
+        // ② 取得選項
         CharSequence[] items = getResources().getStringArray(R.array.han_convert_options);
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
-                this, R.layout.item_check_option, items);
+        int selectedIndex = mLIMEPref.getHanCovertOption();
 
-        builder.setSingleChoiceItems(adapter, mLIMEPref.getHanCovertOption(),
-                new DialogInterface.OnClickListener() {
+        // ③ 設定 adapter
+        ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<>(this, R.layout.item_check_option, items);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setItemChecked(selectedIndex, true);
 
-                    public void onClick(DialogInterface di, int position) {
-                        di.dismiss();
-                        handleHanConvertSelection(position);
-                    }
-                });
+        // ④ 分隔線
+        listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
+        listView.setDividerHeight(1);
+        listView.setFooterDividersEnabled(false);
+        listView.addFooterView(new View(this));
+
+        // ⑤ 點擊事件
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            mOptionsDialog.dismiss();
+            handleHanConvertSelection(position);
+        });
+
+        // ⑥ 建立 Dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
+        builder.setView(dialogView);
 
         createCustomAlertDialog(builder, mCandidateViewStandAlone.getWindowToken());
     }
+
 
     private void handleHanConvertSelection(int position) {
         mLIMEPref.setHanCovertOption(position);
@@ -2052,54 +2075,58 @@ public class LIMEService extends InputMethodService implements
     }
 
     private void handleReadmooOption() {
+        if (DEBUG)
+            Log.i(TAG, "handleReadmooOption()");
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_lime_option, null);
-        builder.setView(view);
+        // ① inflate 自訂 layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_lime_option, null);
 
-        LinearLayout itemSwitchIM = view.findViewById(R.id.option_ime_switch);
-        itemSwitchIM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOptionsDialog.dismiss();
-                showIMPicker();
-            }
+        // ② 綁定各項 UI
+        LinearLayout itemSwitchIM = dialogView.findViewById(R.id.option_ime_switch);
+        LinearLayout hanConvert = dialogView.findViewById(R.id.option_han_converter);
+        LinearLayout itemSplitKeyboard = dialogView.findViewById(R.id.option_keyboard);
+        ImageView keyboardIcon = dialogView.findViewById(R.id.icon_keyboard);
+        TextView keyboardText = dialogView.findViewById(R.id.text_keyboard);
+
+        // ③ 設定鍵盤狀態顯示
+        if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
+            keyboardIcon.setImageResource(R.drawable.keyboardmerge);
+            keyboardText.setText(getString(R.string.merge_keyboard));
+        } else {
+            keyboardIcon.setImageResource(R.drawable.keyboardbreak);
+            keyboardText.setText(getString(R.string.split_keyboard));
+        }
+
+        // ④ 點擊事件
+        itemSwitchIM.setOnClickListener(v -> {
+            mOptionsDialog.dismiss();
+            showIMPicker();
         });
 
-        LinearLayout hanConvert = view.findViewById(R.id.option_han_converter);
-        hanConvert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOptionsDialog.dismiss();
-                showHanConvertPicker();
-            }
+        hanConvert.setOnClickListener(v -> {
+            mOptionsDialog.dismiss();
+            showHanConvertPicker();
         });
 
-        ImageView keyboardIcon = view.findViewById(R.id.icon_keyboard);
-        keyboardIcon.setImageResource((mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) ?
-                R.drawable.keyboardmerge : R.drawable.keyboardbreak);
-
-        TextView keyboardText = view.findViewById(R.id.text_keyboard);
-        keyboardText.setText((mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) ?
-                getString(R.string.merge_keyboard) : getString(R.string.split_keyboard));
-
-        LinearLayout itemSplitKeyboard = view.findViewById(R.id.option_keyboard);
-        itemSplitKeyboard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOptionsDialog.dismiss();
-                if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_NEVER) {
-                    mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS);
-                } else if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
-                    mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_NEVER);
-                }
-                handleClose();
-                mKeyboardSwitcher.resetKeyboards(true);
+        itemSplitKeyboard.setOnClickListener(v -> {
+            mOptionsDialog.dismiss();
+            if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_NEVER) {
+                mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS);
+            } else if (mSplitKeyboard == LIMEKeyboard.SPLIT_KEYBOARD_ALWAYS) {
+                mLIMEPref.setSplitKeyboard(LIMEKeyboard.SPLIT_KEYBOARD_NEVER);
             }
+            handleClose();
+            mKeyboardSwitcher.resetKeyboards(true);
         });
 
+        // ⑤ 建立 AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
+        builder.setView(dialogView);
+
+        // ⑥ 顯示
         createCustomAlertDialog(builder, mInputView.getWindowToken());
     }
+
 
     /**
      * Add by Jeremy '10, 3, 24 for IM picker menu in options menu
@@ -2110,12 +2137,14 @@ public class LIMEService extends InputMethodService implements
             Log.i(TAG, "showIMPicker()");
         buildActivatedIMList();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ReadMooDialog);
-        TextView titleView = (TextView) LayoutInflater.from(this).inflate(R.layout.dialog_alert_title, null);
-        titleView.setText(getResources().getString(R.string.keyboard_list));
+        // ① inflate 自訂整體 layout
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rm_ime_option, null);
+        TextView titleView = dialogView.findViewById(R.id.title);
+        ListView listView = dialogView.findViewById(R.id.listView);
 
-        builder.setCustomTitle(titleView);
+        titleView.setText(getString(R.string.keyboard_list));
 
+        // ② 準備清單內容
         int expandSize = mSupportEInkHandwriteIme ? 1 : 0;
         CharSequence[] items = new CharSequence[activatedIMNameList.size() + expandSize];
         int curKB = 0;
@@ -2126,38 +2155,43 @@ public class LIMEService extends InputMethodService implements
         }
 
         if (mSupportEInkHandwriteIme) {
-            // "com.eink.einkime/.tcime.ZhTwHandWriteIME";
             items[items.length - 1] = "手寫輸入法";
         }
 
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
-                this, R.layout.item_check_option, items);
+        // ③ 建立 adapter
+        ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<>(this, R.layout.item_check_option, items);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setItemChecked(curKB, true);
 
-        builder.setSingleChoiceItems(adapter, curKB,
-                new DialogInterface.OnClickListener() {
+        // ④ 自訂分隔線
+        listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
+        listView.setDividerHeight(1);
+        listView.setFooterDividersEnabled(false);
+        listView.addFooterView(new View(this)); // 不顯示最後一條分隔線
 
-                    public void onClick(DialogInterface di, int position) {
-                        di.dismiss();
-                        handleIMSelection(position);
-                    }
-                });
-        // Jeremy '11,8,28 Use candidate instead of mInputview because mInputView may not present when using physical keyboard
+        // ⑤ 點擊事件
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            mOptionsDialog.dismiss();
+            handleIMSelection(position);
+        });
+
+        // ⑥ 建立 AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MooDialog);
+        builder.setView(dialogView);
+
         createCustomAlertDialog(builder, mInputView.getWindowToken());
     }
 
     private void createCustomAlertDialog(AlertDialog.Builder builder, IBinder windowToken) {
         mOptionsDialog = builder.create();
-        ListView listView = mOptionsDialog.getListView();
-        if (listView != null) {
-            listView.setDivider(getResources().getDrawable(R.drawable.bg_bottom_dash_line));
-            listView.setDividerHeight(1);
-        }
+
         Window window = mOptionsDialog.getWindow();
-        // Jeremy '10, 4, 12
-        // The IM is not initialialized. do nothing here if window=null.
-        assert window != null;
+        if (window == null) return;
+
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.token = windowToken;  //always there Jeremy '12,5,4
+        lp.token = windowToken;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
@@ -2165,6 +2199,7 @@ public class LIMEService extends InputMethodService implements
         }
         window.setAttributes(lp);
         window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+
         mOptionsDialog.setCanceledOnTouchOutside(true);
         mOptionsDialog.show();
     }
@@ -2254,6 +2289,21 @@ public class LIMEService extends InputMethodService implements
      * Update the list of available candidates from the current composing text.
      * This will need to be filled in by however you are determining candidates.
      */
+
+
+    private Observable mTask = null;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private void test() {
+        mTask = Observable.fromCallable(() -> {
+            return true;
+        });
+
+        mTask = Observable.create(emitter -> {
+            emitter.onNext(true);
+            emitter.onComplete();
+        });
+//        mTask.subscribeOn(Schedulers.io()).subscribe();
+    }
     public void updateCandidates(final boolean getAllRecords) {
 
         if (DEBUG) Log.i(TAG, "updateCandidate():Update Candidate mComposing:" + mComposing);
@@ -2280,22 +2330,28 @@ public class LIMEService extends InputMethodService implements
 
             final String finalKeyString = keyString;
             final boolean finalHasPhysicalKeyPressed = hasPhysicalKeyPressed;
-            if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-            queryThread = new Thread() {
+            mCompositeDisposable.clear();
 
-                public void run() {
+            Disposable queryTask = Observable.create(emitter -> {
+                    Log.d(TAG, "new query 1");
 
                     try {
                         list.addAll(SearchSrv.getMappingByCode(finalKeyString, !finalHasPhysicalKeyPressed, getAllRecords));
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
-                    try {
-                        sleep(0);
-                    } catch (InterruptedException ignored) {
-                        ignored.printStackTrace();
-                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
-                    }
+//                    try {
+//                        sleep(0);
+//                    } catch (InterruptedException ignored) {
+//                        ignored.printStackTrace();
+//                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                    }
+
+
+                if (emitter.isDisposed()) {
+                    Log.e(TAG, "dispose by outer");
+                    return;
+                }
                     //Jeremy '11,6,19 EZ and ETEN use "`" as IM Keys, and also custom may use "`".
                     if (list.size() > 0) {
                         // Setup sel key display if
@@ -2321,11 +2377,15 @@ public class LIMEService extends InputMethodService implements
                             else if (selkeyOption == 2) selkey = mixedModeSelkey + " " + selkey;
                         }
 
-                        try {
-                            sleep(0);
-                        } catch (InterruptedException ignored) {
-                            ignored.printStackTrace();
-                            return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                        try {
+//                            sleep(0);
+//                        } catch (InterruptedException ignored) {
+//                            ignored.printStackTrace();
+//                            return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                        }
+                        if (emitter.isDisposed()) {
+                            Log.e(TAG, "dispose by outer");
+                            return;
                         }
 
 
@@ -2411,18 +2471,25 @@ public class LIMEService extends InputMethodService implements
                                 && !keynameString.toUpperCase(Locale.US).equals(finalKeyString.toUpperCase(Locale.US))
                                 && !keynameString.trim().equals("")
                                 ) {
-                            try {
-                                sleep(0);
-                            } catch (InterruptedException ignored) {
-                                ignored.printStackTrace();
-                                return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                            try {
+//                                sleep(0);
+//                            } catch (InterruptedException ignored) {
+//                                ignored.printStackTrace();
+//                                return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                            }
+                            if (emitter.isDisposed()) {
+                                Log.e(TAG, "dispose by outer");
+                                return;
                             }
                             mCandidateView.setComposingText(keynameString);
                         }
+
                     }
-                }
-            };
-            queryThread.start();
+
+                emitter.onNext(true);
+                emitter.onComplete();
+            }).subscribeOn(Schedulers.io()).subscribe();
+            mCompositeDisposable.add(queryTask);
 
 
         } else
@@ -2485,9 +2552,11 @@ public class LIMEService extends InputMethodService implements
                         tempEnglishList.clear();
 
                         final boolean finalHasPhysicalKeyPressed = hasPhysicalKeyPressed;
-                        if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-                        queryThread = new Thread() {
-                            public void run() {
+                        mCompositeDisposable.clear();
+
+                        Disposable queryTask = Observable.create(emitter -> {
+                                Log.d(TAG, "new query 2");
+
                                 final Mapping self = new Mapping();
                                 self.setWord(tempEnglishWord.toString());
                                 self.setComposingCodeRecord();
@@ -2498,12 +2567,17 @@ public class LIMEService extends InputMethodService implements
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }
-                                try {
-                                    sleep(0);
-                                } catch (InterruptedException ignored) {
-                                    ignored.printStackTrace();
-                                    return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
-                                }
+//                                try {
+//                                    sleep(0);
+//                                } catch (InterruptedException ignored) {
+//                                    ignored.printStackTrace();
+//                                    return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                                }
+
+                            if (emitter.isDisposed()) {
+                                Log.e(TAG, "dispose by outer");
+                                return;
+                            }
 
                                 if ((suggestions != null ? suggestions.size() : 0) > 0) {
                                     list.add(self);
@@ -2515,11 +2589,15 @@ public class LIMEService extends InputMethodService implements
                                     if (disable_physical_selection && finalHasPhysicalKeyPressed) {
                                         selkey = "";
                                     }
-                                    try {
-                                        sleep(0);
-                                    } catch (InterruptedException ignored) {
-                                        ignored.printStackTrace();
-                                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                                    try {
+//                                        sleep(0);
+//                                    } catch (InterruptedException ignored) {
+//                                        ignored.printStackTrace();
+//                                        return;   // terminate thread here, since it is interrupted and more recent getMappingByCode will update the suggestions.
+//                                    }
+                                    if (emitter.isDisposed()) {
+                                        Log.e(TAG, "dispose by outer");
+                                        return;
                                     }
 
 
@@ -2564,9 +2642,11 @@ public class LIMEService extends InputMethodService implements
                                     //Jermy '11,8,14
                                     clearSuggestions();
                                 }
-                            }
-                        };
-                        queryThread.start();
+
+                            emitter.onNext(true);
+                            emitter.onComplete();
+                        }).subscribeOn(Schedulers.io()).subscribe();
+                        mCompositeDisposable.add(queryTask);
                     }
 
                 }
@@ -2596,47 +2676,54 @@ public class LIMEService extends InputMethodService implements
                 && !committedCandidate.getWord().equals("")) {
 
             final boolean finalHasPhysicalKeyPressed = hasPhysicalKeyPressed;
-            if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-            queryThread = new Thread() {
-                public void run() {
+            mCompositeDisposable.clear();
 
-                    LinkedList<Mapping> list = new LinkedList<>();
-                    //Jeremy '11,8,9 Insert completion suggestions from application
-                    //in front of related dictionary list in full-screen mode
-                    if (mCompletionOn) {
-                        list.addAll(buildCompletionList());
+            Disposable queryTask = Observable.create(emitter -> {
+                Log.d(TAG, "new query 3");
+
+                LinkedList<Mapping> list = new LinkedList<>();
+                //Jeremy '11,8,9 Insert completion suggestions from application
+                //in front of related dictionary list in full-screen mode
+                if (mCompletionOn) {
+                    list.addAll(buildCompletionList());
+                }
+
+
+                if (committedCandidate != null && hasMappingList) {
+                    if (emitter.isDisposed()) {
+                        Log.e(TAG, "dispose by outer");
+                        return;
                     }
 
+                    try {
+                        if (!committedCandidate.isEmojiRecord() && !committedCandidate.isChinesePunctuationSymbolRecord()) {
+                            list.addAll(SearchSrv.getRelatedPhrase(committedCandidate.getWord(), getAllRecords));
+                        }
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
 
-                    if (committedCandidate != null && hasMappingList) {
-                        if (queryThread != null && queryThread.isAlive()) queryThread.interrupt();
-                        try {
-                            if(!committedCandidate.isEmojiRecord() && !committedCandidate.isChinesePunctuationSymbolRecord()){
-                                list.addAll(SearchSrv.getRelatedPhrase(committedCandidate.getWord(), getAllRecords));
-                            }
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
+                    if (list.size() > 0) {
+
+
+                        // Setup sel key display if
+                        String selkey = "1234567890";
+                        if (disable_physical_selection && finalHasPhysicalKeyPressed) {
+                            selkey = "";
                         }
 
-                        if (list.size() > 0) {
-
-
-                            // Setup sel key display if
-                            String selkey = "1234567890";
-                            if (disable_physical_selection && finalHasPhysicalKeyPressed) {
-                                selkey = "";
-                            }
-
-                            setSuggestions(list, finalHasPhysicalKeyPressed && !isFullscreenMode(), selkey);
-                        } else {
-                            committedCandidate = null;
-                            //Jermy '11,8,14
-                            clearSuggestions();
-                        }
+                        setSuggestions(list, finalHasPhysicalKeyPressed && !isFullscreenMode(), selkey);
+                    } else {
+                        committedCandidate = null;
+                        //Jermy '11,8,14
+                        clearSuggestions();
                     }
                 }
-            };
-            queryThread.start();
+
+                emitter.onNext(true);
+                emitter.onComplete();
+            }).subscribeOn(Schedulers.io()).subscribe();
+            mCompositeDisposable.add(queryTask);
         }
 
     }
@@ -3562,34 +3649,34 @@ public class LIMEService extends InputMethodService implements
         } else if (hasDistinctMultitouch && hasShiftPress) {
             hasShiftCombineKeyPressed = true;
         }
-        doVibrateSound(primaryCode);
+//        doVibrateSound(primaryCode);
 
 
     }
-
-    public void doVibrateSound(int primaryCode) {
-        if (DEBUG) Log.i(TAG, "doVibrateSound()");
-        if (hasVibration) {
-            //Jeremy '11,9,1 add preference on vibrate level
-            mVibrator.vibrate(mLIMEPref.getVibrateLevel());
-        }
-        if (hasSound) {
-            int sound = AudioManager.FX_KEYPRESS_STANDARD;
-            switch (primaryCode) {
-                case LIMEBaseKeyboard.KEYCODE_DELETE:
-                    sound = AudioManager.FX_KEYPRESS_DELETE;
-                    break;
-                case MY_KEYCODE_ENTER:
-                    sound = AudioManager.FX_KEYPRESS_RETURN;
-                    break;
-                case MY_KEYCODE_SPACE:
-                    sound = AudioManager.FX_KEYPRESS_SPACEBAR;
-                    break;
-            }
-            float FX_VOLUME = 1.0f;
-            mAudioManager.playSoundEffect(sound, FX_VOLUME);
-        }
-    }
+//
+//    public void doVibrateSound(int primaryCode) {
+//        if (DEBUG) Log.i(TAG, "doVibrateSound()");
+//        if (hasVibration) {
+//            //Jeremy '11,9,1 add preference on vibrate level
+//            mVibrator.vibrate(mLIMEPref.getVibrateLevel());
+//        }
+//        if (hasSound) {
+//            int sound = AudioManager.FX_KEYPRESS_STANDARD;
+//            switch (primaryCode) {
+//                case LIMEBaseKeyboard.KEYCODE_DELETE:
+//                    sound = AudioManager.FX_KEYPRESS_DELETE;
+//                    break;
+//                case MY_KEYCODE_ENTER:
+//                    sound = AudioManager.FX_KEYPRESS_RETURN;
+//                    break;
+//                case MY_KEYCODE_SPACE:
+//                    sound = AudioManager.FX_KEYPRESS_SPACEBAR;
+//                    break;
+//            }
+//            float FX_VOLUME = 1.0f;
+//            mAudioManager.playSoundEffect(sound, FX_VOLUME);
+//        }
+//    }
 
     /**
      * Last method to execute when key release
@@ -3622,8 +3709,10 @@ public class LIMEService extends InputMethodService implements
 
     @Override
     public void onDestroy() {
-        if (DEBUG)
-            Log.i(TAG, "onDestroy()");
+        /*if (DEBUG)
+            */Log.i(TAG, "onDestroy()");
+
+        mCompositeDisposable.clear();
 
         //jeremy 12,4,21 need to check again---
         //clearComposing(true); see no need to do this '12,4,21

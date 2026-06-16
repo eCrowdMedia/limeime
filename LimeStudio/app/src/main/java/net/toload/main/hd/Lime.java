@@ -282,22 +282,7 @@ public class Lime {
     public static final String BACKUP = "backup";
     public static final String RESTORE = "restore";
 
-    public static final String GOOGLE = "GOOGLE";
-    public static final String GOOGLE_ACCOUNT_NAME = "GOOGLE_ACCOUNT_NAME";
-    public static final String GOOGLE_BACKUP_FILENAME = "limedatabasebackup.zip";
-
     public static final String LOCAL = "LOCAL";
-
-    public static final String DROPBOX = "DROPBOX";
-    public static final String DROPBOX_TYPE = "DROPBOX_TYPE";
-    // old dropbox key paris
-    public final static String DROPBOX_APP_KEY = "keuuzhfc6efjf6t";
-    public final static String DROPBOX_APP_SECRET = "4y8fy4rqk8rofd8";
-
-    //public static final String DROPBOX_APP_KEY = "1a85ahrq8uh60r7";
-    //public static final String DROPBOX_APP_SECRET = "l3yyjll7ef3vfb3";
-    public static final String DROPBOX_ACCESS_TOKEN = "DROPBOX_ACCESS_TOKEN";
-    public static final String DROPBOX_REQUEST_FLAG = "DROPBOX_REQUEST_FLAG";
 
     public static final String DEVICE = "device";
     public static final int GOOGLE_RETRIEVE_MAXIMUM = 500;
@@ -325,13 +310,6 @@ public class Lime {
     public static final String EMOJI_FIELD_TAG= "tag";
     public static final String EMOJI_FIELD_VALUE= "value";
 
-    // AD
-    public static final String VPON_BANNER_ID = "8a8081824cfe92fa014d3707f493630b";
-
-    // Payment
-
-    public static final String PAYMENT_FLAG = "PAYMENT_FLAG";
-    public static final int PAYMENT_REQUEST_CODE = 1001;
 
     // Global Utility Methods
 
